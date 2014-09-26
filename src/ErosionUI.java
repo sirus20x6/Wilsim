@@ -7,7 +7,7 @@
  The class contains:
  -Constructor: 
  *ErosionUI(Panel thisPanel, ErosionSim e1, SharedParameters sparams, 
- ErosionCanvas e2, ErosionCanvas e25p, ErosionCanvas e50p, ErosionCanvas e75p, ErosionCanvas e100p,
+ EROSIONCANVAS e2, EROSIONCANVAS e25p, EROSIONCANVAS e50p, EROSIONCANVAS e75p, EROSIONCANVAS e100p,
  ErosionIntervals ei, ErosionIntervals eis,
  ErosionIntervals ec, ErosionIntervals ecs, ErosionIntervals er, ErosionIntervals ers,
  ErosionHypsometric ehrec)
@@ -43,34 +43,62 @@ import java.text.DecimalFormat;
 
 class ErosionUI implements ItemListener, AdjustmentListener, ActionListener {
 
-    //global parameters
-    private final SharedParameters params;
-
-    //for the intervals
-    private final ErosionIntervals eintervals;
-    private final ErosionIntervals eintsediment;
-    private final ErosionIntervals ecolumn;
-    private final ErosionIntervals ecolsediment;
-    private final ErosionIntervals erow;
-    private final ErosionIntervals erowsediment;
-
-    //for the hypsometric curve
-    private final ErosionHypsometric eh;
-
+    //static variables used by components
+    //grid variables for components
+    private static final int xMinimum = 60;
+    private static final int xMaximum = 110;
+    private static final int yMinimum = 100;
+    private static final int yMaximum = 210;
+    private static final int xyblock = 5;
+    //time variables
+    private static final int timeminimum = 1000;
+    private static final int timemaximum = 10001;
+    private static final int timeblock = 10;
+    //erodibility variables
+    private static final double erodibilityuniform = 0.05;
+    private static final int uniformminimum = 10;
+    private static final int uniformmaximum = 60;
+    private static final int uniformstep = 10;
+    private static final int xleftminimum = 10;
+    private static final int xrightmaximum = 60;
+    private static final int minimumxpoint = 0;
+    private static final int minimumypoint = 0;
+    //slope variables
+    private static final int slopeminimum = 1;
+    private static final int slopemaximum = 40;
+    private static final int slopeblock = 1;
+    //climate variables
+    private static final int climateminimum = 50;
+    private static final int climatemaximum = 160;
+    private static final int climatelow = 50;
+    private static final int climatehigh = 160;
+    private static final int climateblock = 10;
+    private static final int climatedefaultblock = 10;
+    //tectonics
+    private static final int tectonicsxleftminimum = 0;
+    private static final int tectonicsxleftmaximum = 40;
+    private static final int tectonicsblock = 10;
+    private static final int tectonicsminimumxpoint = 0;
+    private static final int tectonicsminimumypoint = 0;
+    //different colors used
+    private static final Color highlights = Color.blue;
+    private static final Color outsidepanelColor = new Color(149, 167, 191);
+    private static final Color snapshotpanelColor = new Color(159, 167, 201);
+    private static final Color optionsColor = new Color(149, 157, 191);
+    private static final Color intervalColor = new Color(164, 172, 206);
+    private static final Color hypsometricColor = new Color(179, 197, 221);
+    private static final Color initialconditionsColor = new Color(174, 182, 206);
     private static CustomPanel optionGeneralPanel;
     private static CustomPanel optionCardManagerPanel;
     private static CustomPanel optionintervals1down;
     private static CustomPanel imagesPanel;
-
     //to show the topographic grid
     private static SurfacePanel sPanel;
-
     //cardlayout managers
     private static CardLayout cardSimulationManager;
     private static CardLayout cardManagerGeneral;
     private static CardLayout cardManagerUp;
     private static CardLayout cardManagerIntervals;
-
     //labels
     private static Label cardLabelSimulation;
     private static Label cardLabelSnapshot;
@@ -124,25 +152,6 @@ class ErosionUI implements ItemListener, AdjustmentListener, ActionListener {
     private static Label tectonicslabelCheck1;
     private static Label rowintervalvalueLabel;
     private static Label columnintervalvalueLabel;
-
-    //customized types of labels
-    private final decimalLabel topographyslopeLabel;
-    private final decimalLabel erodibilityuniformvalueLabel;
-    private final decimalLabel erodibilityxleftvalueLabel;
-    private final decimalLabel erodibilityxrightvalueLabel;
-    private final decimalLabel erodibilityytopvalueLabel;
-    private final decimalLabel erodibilityybottomvalueLabel;
-    private final decimalLabel climatedefaultvalueLabel;
-    private final decimalLabel climateincreasingvaluelowLabel;
-    private final decimalLabel climatedecreasingvaluelowLabel;
-    private final decimalLabel climateincreasingvaluehighLabel;
-    private final decimalLabel climatedecreasingvaluehighLabel;
-    private final decimalLabel tectonicsxleftvalueLabel;
-    private final decimalLabel tectonicsxrightvalueLabel;
-    private final decimalLabel tectonicsytopvalueLabel;
-    private final decimalLabel tectonicsybottomvalueLabel;
-
-
     //sliders
     private static Scrollbar interchangeableSlider;
     private static Scrollbar erodibilitySlider;
@@ -152,7 +161,6 @@ class ErosionUI implements ItemListener, AdjustmentListener, ActionListener {
     private static Scrollbar tectonicsadvancedSlider;
     private static Scrollbar columnintervalSlider;
     private static Scrollbar rowintervalSlider;
-
     //checkboxes
     private static Checkbox initialconditionCheck;
     private static Checkbox hypsometricCheck;
@@ -190,57 +198,6 @@ class ErosionUI implements ItemListener, AdjustmentListener, ActionListener {
     private static Checkbox selectedrowCheck;
     private static Checkbox simulationCheck;
     private static Checkbox snapshotCheck;
-
-    //help buttons
-    private final Button initialConditionsHelpButton;
-    private final Button erodibilityHelpButton;
-    private final Button climateHelpButton;
-    private final Button tectonicsHelpButton;
-
-    //textareas for help text
-    private final TextArea initialConditionsHelpText;
-    private final TextArea erodibilityHelpText;
-    private final TextArea climateHelpText;
-    private final TextArea tectonicsHelpText;
-
-    //static variables used by components
-    //grid variables for components
-    private static final int xminimum = 60;
-    private static final int xmaximum = 110;
-    private static final int yminimum = 100;
-    private static final int ymaximum = 210;
-    private static final int xyblock = 5;
-    //time variables
-    private static final int timeminimum = 1000;
-    private static final int timemaximum = 10001;
-    private static final int timeblock = 10;
-    //erodibility variables
-    private static final double erodibilityuniform = 0.05;
-    private static final int uniformminimum = 10;
-    private static final int uniformmaximum = 60;
-    private static final int uniformstep = 10;
-    private static final int xleftminimum = 10;
-    private static final int xrightmaximum = 60;
-    private static final int minimumxpoint = 0;
-    private static final int minimumypoint = 0;
-    //slope variables
-    private static final int slopeminimum = 1;
-    private static final int slopemaximum = 40;
-    private static final int slopeblock = 1;
-    //climate variables
-    private static final int climateminimum = 50;
-    private static final int climatemaximum = 160;
-    private static final int climatelow = 50;
-    private static final int climatehigh = 160;
-    private static final int climateblock = 10;
-    private static final int climatedefaultblock = 10;
-    //tectonics
-    private static final int tectonicsxleftminimum = 0;
-    private static final int tectonicsxleftmaximum = 40;
-    private static final int tectonicsblock = 10;
-    private static final int tectonicsminimumxpoint = 0;
-    private static final int tectonicsminimumypoint = 0;
-
     private static boolean xgrid = false;
     private static boolean ygrid = false;
     private static boolean endt = false;
@@ -265,15 +222,41 @@ class ErosionUI implements ItemListener, AdjustmentListener, ActionListener {
     private static boolean tectonicsxright = false;
     private static boolean tectonicsytop = false;
     private static boolean tectonicsybottom = false;
-
-    //different colors used
-    private static final Color highlights = Color.blue;
-    private static final Color outsidepanelColor = new Color(149, 167, 191);
-    private static final Color snapshotpanelColor = new Color(159, 167, 201);
-    private static final Color optionsColor = new Color(149, 157, 191);
-    private static final Color intervalColor = new Color(164, 172, 206);
-    private static final Color hypsometricColor = new Color(179, 197, 221);
-    private static final Color initialconditionsColor = new Color(174, 182, 206);
+    //for the intervals
+    private final ErosionIntervals eintervals;
+    private final ErosionIntervals eintsediment;
+    private final ErosionIntervals ecolumn;
+    private final ErosionIntervals ecolsediment;
+    private final ErosionIntervals erow;
+    private final ErosionIntervals erowsediment;
+    //for the hypsometric curve
+    private final ErosionHypsometric eh;
+    //customized types of labels
+    private final decimalLabel topographyslopeLabel;
+    private final decimalLabel erodibilityuniformvalueLabel;
+    private final decimalLabel erodibilityxleftvalueLabel;
+    private final decimalLabel erodibilityxrightvalueLabel;
+    private final decimalLabel erodibilityytopvalueLabel;
+    private final decimalLabel erodibilityybottomvalueLabel;
+    private final decimalLabel climatedefaultvalueLabel;
+    private final decimalLabel climateincreasingvaluelowLabel;
+    private final decimalLabel climatedecreasingvaluelowLabel;
+    private final decimalLabel climateincreasingvaluehighLabel;
+    private final decimalLabel climatedecreasingvaluehighLabel;
+    private final decimalLabel tectonicsxleftvalueLabel;
+    private final decimalLabel tectonicsxrightvalueLabel;
+    private final decimalLabel tectonicsytopvalueLabel;
+    private final decimalLabel tectonicsybottomvalueLabel;
+    //help buttons
+    private final Button initialConditionsHelpButton;
+    private final Button erodibilityHelpButton;
+    private final Button climateHelpButton;
+    private final Button tectonicsHelpButton;
+    //textareas for help text
+    private final TextArea initialConditionsHelpText;
+    private final TextArea erodibilityHelpText;
+    private final TextArea climateHelpText;
+    private final TextArea tectonicsHelpText;
 
     /**
      * ********************************************************************************************
@@ -281,13 +264,12 @@ class ErosionUI implements ItemListener, AdjustmentListener, ActionListener {
      * *********************************************************************************************
      */
     ErosionUI(Panel thisPanel, ErosionSim e1, SharedParameters sparams,
-              ErosionCanvas e2,
-              ErosionCanvas e25p, ErosionCanvas e50p, ErosionCanvas e75p, ErosionCanvas e100p,
+              EROSIONCANVAS e2,
+              EROSIONCANVAS e25p, EROSIONCANVAS e50p, EROSIONCANVAS e75p, EROSIONCANVAS e100p,
               ErosionIntervals ei, ErosionIntervals eis,
               ErosionIntervals ec, ErosionIntervals ecs, ErosionIntervals er, ErosionIntervals ers,
               ErosionHypsometric ehrec) {
         // Get a link to the simulation, shared parameters, and image
-        params = sparams;
         eintervals = ei;
         eintsediment = eis;
         ecolumn = ec;
@@ -314,7 +296,6 @@ class ErosionUI implements ItemListener, AdjustmentListener, ActionListener {
         SharedParameters.RAININCREASEHIGH = 0;
         SharedParameters.RAINDECREASEHIGH = 0;
         SharedParameters.STEPCOUNTER = 0;
-        SharedParameters.CLIMATEDEFAULT = true;
 
         //user interface layout
         //panel that has all the subpanels and components
@@ -691,8 +672,8 @@ class ErosionUI implements ItemListener, AdjustmentListener, ActionListener {
         interchangeablelabelnorth.setFont(new Font("Times Roman", Font.BOLD, 8));
         initialConditionsTabPanelupslider.add(interchangeablelabelnorth, BorderLayout.NORTH);
         interchangeableSlider = new Scrollbar(Scrollbar.VERTICAL);
-        interchangeableSlider.setMinimum(xminimum);
-        interchangeableSlider.setMaximum(xmaximum);
+        interchangeableSlider.setMinimum(xMinimum);
+        interchangeableSlider.setMaximum(xMaximum);
         interchangeableSlider.setUnitIncrement(xyblock);
         interchangeableSlider.addAdjustmentListener(this);
         initialConditionsTabPanelupslider.add(interchangeableSlider, BorderLayout.CENTER);
@@ -810,8 +791,8 @@ class ErosionUI implements ItemListener, AdjustmentListener, ActionListener {
                 GridBagConstraints.NONE, GridBagConstraints.WEST
         );
         erodibilitySlider = new Scrollbar(Scrollbar.VERTICAL);
-        erodibilitySlider.setMinimum(xminimum);
-        erodibilitySlider.setMaximum(xmaximum);
+        erodibilitySlider.setMinimum(xMinimum);
+        erodibilitySlider.setMaximum(xMaximum);
         erodibilitySlider.setUnitIncrement(xyblock);
         erodibilitySlider.addAdjustmentListener(this);
         constraint(erodibilityTabPanelupwest, erodibilitySlider, 5, 7, 1, 7,
@@ -1568,7 +1549,7 @@ class ErosionUI implements ItemListener, AdjustmentListener, ActionListener {
         e100p.setBackgroundColor(snapshotpanelColor);
 
         //add panels
-        sPanel = new SurfacePanel(sparams, e2, e1);
+        sPanel = new SurfacePanel(e2, e1);
         erosionPanel.add(sPanel, BorderLayout.CENTER);
         initialConditionsTabPanelup.add(initialConditionsTabPanelupwest, BorderLayout.WEST);
         initialConditionsTabPanelupchoicearrows.add(initialConditionsTabPanelupchoice, BorderLayout.WEST);
@@ -1633,12 +1614,31 @@ class ErosionUI implements ItemListener, AdjustmentListener, ActionListener {
 
     /**
      * ********************************************************************************************
+     * This function checks whether the input is a valid number and converts it to a double
+     * *********************************************************************************************
+     */
+    private static double getDouble(String numStr) {
+        double numDouble;
+
+        numDouble = Double.parseDouble(numStr);
+
+        return numDouble;
+    }// end of getDouble
+
+    /**
+     * ********************************************************************************************
+     * when the applet loses focus
+     * *********************************************************************************************
+     */
+
+    /**
+     * ********************************************************************************************
      * to get the applet started
      * *********************************************************************************************
      */
     public void start() {
-        // This is unfortunate.  When widgets are made invisible before 
-        // UI actually appears, subsequent visibility updates are flaky.		    
+        // This is unfortunate.  When widgets are made invisible before
+        // UI actually appears, subsequent visibility updates are flaky.
         sPanel.repaint();
         initadvancedfake.setVisible(false);
         setComponentColor(1);
@@ -1651,12 +1651,6 @@ class ErosionUI implements ItemListener, AdjustmentListener, ActionListener {
         tectonicsfake.setVisible(false);
         initialConditionsHelpText.setVisible(false);
     }//end start
-
-    /**
-     * ********************************************************************************************
-     * when the applet loses focus
-     * *********************************************************************************************
-     */
 
     /**
      * ********************************************************************************************
@@ -1700,7 +1694,7 @@ class ErosionUI implements ItemListener, AdjustmentListener, ActionListener {
                 tectonicsHelpText.setVisible(false);
             }
         }
-    }//end of action Performed	
+    }//end of action Performed
 
     /**
      * ********************************************************************************************
@@ -1732,8 +1726,6 @@ class ErosionUI implements ItemListener, AdjustmentListener, ActionListener {
             cardManagerUp.show(optionCardManagerPanel, "Initial Conditions");
             initialConditionsHelpText.setVisible(false);
             initialConditionsHelpButton.setLabel("Show Help");
-            SharedParameters.PREVIOUSTAB = false;
-            SharedParameters.NEXTTAB = true;
             initadvancedfake.setState(true);
             if ((SharedParameters.RAININCREASEHIGH < SharedParameters.RAININCREASELOW) || (SharedParameters.RAINDECREASEHIGH < SharedParameters.RAINDECREASELOW)) {
                 cardManagerUp.show(optionCardManagerPanel, "Climate");
@@ -1771,8 +1763,6 @@ class ErosionUI implements ItemListener, AdjustmentListener, ActionListener {
             cardManagerUp.show(optionCardManagerPanel, "Tectonics");
             tectonicsHelpText.setVisible(false);
             tectonicsHelpButton.setLabel("Show Help");
-            SharedParameters.PREVIOUSTAB = true;
-            SharedParameters.NEXTTAB = false;
             tectonicsfake.setState(true);
             tectonicsSlider.setValue(minimumxpoint);
             tectonicsadvancedSlider.setValue(tectonicsxleftminimum);
@@ -1820,13 +1810,13 @@ class ErosionUI implements ItemListener, AdjustmentListener, ActionListener {
                 setComponentColor(2);
                 setArrow(1);
                 setArrow(2);
-                interchangeablelabelnorth.setText("" + xminimum);
-                interchangeablelabelsouth.setText("" + (xmaximum - 10));
+                interchangeablelabelnorth.setText("" + xMinimum);
+                interchangeablelabelsouth.setText("" + (xMaximum - 10));
                 interchangeableSlider.setValue(0);
-                interchangeableSlider.setMinimum(xminimum);
-                interchangeableSlider.setMaximum(xmaximum);
+                interchangeableSlider.setMinimum(xMinimum);
+                interchangeableSlider.setMaximum(xMaximum);
                 interchangeableSlider.setUnitIncrement(xyblock);
-                interchangeableSlider.setValue(xminimum);
+                interchangeableSlider.setValue(xMinimum);
             }
             if (e.getSource() == initadvancedgridy) {
                 ygrid = true;
@@ -1837,13 +1827,13 @@ class ErosionUI implements ItemListener, AdjustmentListener, ActionListener {
                 setComponentColor(3);
                 setArrow(1);
                 setArrow(3);
-                interchangeablelabelnorth.setText("" + yminimum);
-                interchangeablelabelsouth.setText("" + (ymaximum - 10));
+                interchangeablelabelnorth.setText("" + yMinimum);
+                interchangeablelabelsouth.setText("" + (yMaximum - 10));
                 interchangeableSlider.setValue(0);
-                interchangeableSlider.setMinimum(yminimum);
-                interchangeableSlider.setMaximum(ymaximum);
+                interchangeableSlider.setMinimum(yMinimum);
+                interchangeableSlider.setMaximum(yMaximum);
                 interchangeableSlider.setUnitIncrement(xyblock);
-                interchangeableSlider.setValue(yminimum);
+                interchangeableSlider.setValue(yMinimum);
             }
             if (e.getSource() == initadvancedendtime) {
                 ygrid = false;
@@ -1912,7 +1902,7 @@ class ErosionUI implements ItemListener, AdjustmentListener, ActionListener {
                 SharedParameters.EROSIONNEEDED = true;
                 SharedParameters.RANDEROSION = true;
                 SharedParameters.RANDVALUE = (0.03 + Math.random() * 0.04);
-                //set default 
+                //set default
                 SharedParameters.XPOINT = -1;
                 SharedParameters.YPOINT = -1;
                 SharedParameters.XRANDLEFT = 0;
@@ -2024,9 +2014,6 @@ class ErosionUI implements ItemListener, AdjustmentListener, ActionListener {
                 climateincreasehigh = false;
                 climatedecreaselow = false;
                 climatedecreasehigh = false;
-                SharedParameters.CLIMATEDEFAULT = true;
-                SharedParameters.INCREASEON = false;
-                SharedParameters.DECREASEON = false;
                 SharedParameters.RAININCREASELOW = 0.0;
                 SharedParameters.RAININCREASEHIGH = 0.0;
                 SharedParameters.RAINDECREASELOW = 0.0;
@@ -2052,9 +2039,6 @@ class ErosionUI implements ItemListener, AdjustmentListener, ActionListener {
                 climateincreasehigh = false;
                 climatedecreaselow = false;
                 climatedecreasehigh = false;
-                SharedParameters.CLIMATEDEFAULT = false;
-                SharedParameters.DECREASEON = false;
-                SharedParameters.INCREASEON = true;
                 SharedParameters.RAININCREASEHIGH = 0.10;
                 SharedParameters.RAININCREASELOW = 0.05;
                 SharedParameters.RAINDECREASEHIGH = 0.0;
@@ -2079,9 +2063,6 @@ class ErosionUI implements ItemListener, AdjustmentListener, ActionListener {
                 climateincreasehigh = false;
                 climatedecreaselow = false;
                 climatedecreasehigh = false;
-                SharedParameters.CLIMATEDEFAULT = false;
-                SharedParameters.INCREASEON = false;
-                SharedParameters.DECREASEON = true;
                 SharedParameters.RAINDECREASEHIGH = 0.10;
                 SharedParameters.RAINDECREASELOW = 0.05;
                 SharedParameters.RAININCREASEHIGH = 0.0;
@@ -2252,7 +2233,7 @@ class ErosionUI implements ItemListener, AdjustmentListener, ActionListener {
                 tectonicsbottom.setForeground(highlights);
                 tectonicsybottomvalueLabel.setForeground(highlights);
             }
-        }//end of routinestarted check		
+        }//end of routinestarted check
     }//end of itemStateChanged
 
     /**
@@ -2263,7 +2244,7 @@ class ErosionUI implements ItemListener, AdjustmentListener, ActionListener {
     public void adjustmentValueChanged(AdjustmentEvent e) {
         //to prevent from changes when process started
         if (!SharedParameters.ROUTINESTARTED) {
-            //GRID SIZE		
+            //GRID SIZE
             if ((e.getSource() == interchangeableSlider) && xgrid) {
                 if (e.getValue() > 100) {
                     xmaxsliderLabel.setText("100");
@@ -3039,20 +3020,6 @@ class ErosionUI implements ItemListener, AdjustmentListener, ActionListener {
 
     /**
      * ********************************************************************************************
-     * This function checks whether the input is a valid number and converts it to a double
-     * *********************************************************************************************
-     */
-    private static double getDouble(String numStr) {
-        double numDouble;
-
-        numDouble = Double.parseDouble(numStr);
-
-        return numDouble;
-    }// end of getDouble
-
-
-    /**
-     * ********************************************************************************************
      * This function allows for a more controlled location of components on the applet.
      * *********************************************************************************************
      */
@@ -3070,9 +3037,7 @@ class ErosionUI implements ItemListener, AdjustmentListener, ActionListener {
         c.weightx = 1.0;
         c.weighty = 1.0;
 
-        if (1 + 1 + 1 + 1 > 0) {
-            c.insets = new Insets(1, 1, 1, 1);
-        }
+        c.insets = new Insets(1, 1, 1, 1);
 
         ((GridBagLayout) cont.getLayout()).setConstraints(comp, c);
         cont.add(comp);
@@ -3107,63 +3072,25 @@ class ErosionUI implements ItemListener, AdjustmentListener, ActionListener {
  * *********************************************************************************************
  */
 class CustomPanel extends Panel {
+    private final int newWidth;
+    private final int newHeight;
+    //variables for the string
+    // private final String s = "";
+    //orientation
+//    private final String o = "";
+//    private final String arrow = "";
+    private final Font f = new Font("Times Roman", Font.BOLD, 14);
     //values for the default insets
     private int top = 5;
     private int left = 5;
     private int bottom = 5;
     private int right = 5;
-    private int newWidth;
-    private int newHeight;
     private int insetColor1;
     private int insetColor2;
     private int insetColor3;
     private boolean drawInsets = false;
-
-    //variables for the string
-    private String s = "";
-    //orientation
-    private String o = "";
-    private String arrow = "";
-    String chartoString = "";
-    private final Font f = new Font("Times Roman", Font.BOLD, 14);
-    Font f1 = new Font("Times Roman", Font.PLAIN, 12);
     private Color c;
-    Color insetColor;
     private int ycoord;
-
-    /**
-     * ********************************************************************************************
-     * constructor with no arguments
-     * *********************************************************************************************
-     */
-    public CustomPanel() {
-        super();
-    }//end CustomPanel constructor
-
-    /**
-     * ********************************************************************************************
-     * constructor with arguments
-     * *********************************************************************************************
-     */
-    public CustomPanel(int sentWidth, int sentHeight) {
-        super();
-        newWidth = sentWidth;
-        newHeight = sentHeight;
-        drawInsets = false;
-    }
-
-    /**
-     * ********************************************************************************************
-     * constructor with arguments
-     * *********************************************************************************************
-     */
-    public CustomPanel(int sentWidth, int sentHeight, String arrow, int ycoord) {
-        super();
-        newWidth = sentWidth;
-        newHeight = sentHeight;
-        this.arrow = arrow;
-        this.ycoord = ycoord;
-    }
 
     /**
      * ********************************************************************************************
@@ -3201,51 +3128,12 @@ class CustomPanel extends Panel {
 
     /**
      * ********************************************************************************************
-     * constructor with arguments
-     * *********************************************************************************************
-     */
-    public CustomPanel(int sentWidth, int sentHeight, int top, int left, int bottom, int right, String s, String o, Color c, boolean drawInsets, int insetColor1, int insetColor2, int insetColor3) {
-        super();
-        newWidth = sentWidth;
-        newHeight = sentHeight;
-        this.top = top;
-        this.left = left;
-        this.bottom = bottom;
-        this.right = right;
-        this.s = s;
-        this.o = o;
-        this.c = c;
-        this.drawInsets = drawInsets;
-        this.insetColor1 = insetColor1;
-        this.insetColor2 = insetColor2;
-        this.insetColor3 = insetColor3;
-    }//end CustomPanel constructor
-
-    /**
-     * ********************************************************************************************
      * paint method
      * *********************************************************************************************
      */
     public void paint(Graphics g) {
         Dimension d = getSize();
-        //if the panel has a string, draw it
-        if (!s.equals("")) {
-            int x = 0;
-            int y = 0;
-            g.setColor(c);
-            g.setFont(f);
-            FontMetrics fm = g.getFontMetrics();
-            if (o.equals("h")) {
-                x = (d.width - fm.stringWidth(s)) / 2;
-                y = d.height / 2;
-                g.drawString(s, x, y);
-            }
-        }//end if
 
-        if (!arrow.equals("")) {
-            g.setColor(Color.black);
-            g.drawLine(0, ycoord, d.width, ycoord);
-        }
 
         if (drawInsets) {
             g.setColor(new Color(insetColor1 - 20, insetColor2 - 20, insetColor3 - 20));
@@ -3297,7 +3185,7 @@ class CustomPanel extends Panel {
  * to start the erosion process and to show or hide process information.
  * The class contains:
  * -Constructor:
- * SurfacePanel(SharedParameters globalvariables, ErosionCanvas e1,
+ * SurfacePanel(SharedParameters globalvariables, EROSIONCANVAS e1,
  * ErosionSim e2)= constructor
  * -Helping functions:
  * public void actionPerformed(ActionEvent e) = to listen to buttons
@@ -3314,11 +3202,10 @@ class CustomPanel extends Panel {
  */
 class SurfacePanel extends Panel implements ActionListener, AdjustmentListener {
     private final static int EDGE = 5;
-    private final ErosionSim esim;
-    private final ErosionCanvas ecanv;
-
     private static Scrollbar viewHeadingSlider;
     private static Scrollbar viewAltitudeSlider;
+    private final ErosionSim esim;
+    private final EROSIONCANVAS ecanv;
     private final Button showsurfaceButton;
     private final Button resetButton;
 
@@ -3327,7 +3214,7 @@ class SurfacePanel extends Panel implements ActionListener, AdjustmentListener {
      * constructor
      * *********************************************************************************************
      */
-    SurfacePanel(SharedParameters globalvariables, ErosionCanvas e1, ErosionSim e2) {
+    SurfacePanel(EROSIONCANVAS e1, ErosionSim e2) {
         super();
         ecanv = e1;
         esim = e2;
@@ -3346,7 +3233,6 @@ class SurfacePanel extends Panel implements ActionListener, AdjustmentListener {
         viewAltitudeSlider.addAdjustmentListener(this);
         viewPanel.add(ecanv, BorderLayout.CENTER);
         showsurfaceButton = new Button("Run");
-        SharedParameters.SHOWSURFACEBUTTON = showsurfaceButton;
         new ToolTip("Click to start/continue the simulation", showsurfaceButton);
         showsurfaceButton.addActionListener(this);
         resetButton = new Button("Reset");
@@ -3357,8 +3243,6 @@ class SurfacePanel extends Panel implements ActionListener, AdjustmentListener {
         button1.setLayout(new GridLayout(1, 1));
         CustomPanel button2 = new CustomPanel(50, 28, 1, 1, 1, 1);
         button2.setLayout(new GridLayout(1, 1));
-        Label label0 = new Label("");
-        Label label1 = new Label("");
         Label label2 = new Label("");
         Label label3 = new Label("");
         CustomPanel buttonPanel = new CustomPanel(350, 50, 1, 1, 1, 1, 169, 187, 211);

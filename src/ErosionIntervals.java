@@ -23,13 +23,14 @@
 import java.awt.*;
 
 class ErosionIntervals extends Canvas implements Runnable {
-    private Dimension size;
-    private Thread runIntervals = null;
+    private static final int marginLeft = 25;
+    private static final int marginBottom = 25;
+    private static final int insignificantHeight = 17;
     private final Font f = new Font("Times Roman", Font.PLAIN, 9);
     private final double[] heights;
     private final double[] bedrock;
-    private final int marginLeft = 25;
-    private final int marginBottom = 25;
+    private Dimension size;
+    private Thread runIntervals = null;
     //to work on the offscreen
     private Image osImage = null;
     private Graphics osGraph = null;
@@ -37,7 +38,6 @@ class ErosionIntervals extends Canvas implements Runnable {
     private double amplifyHorizontalSize = 1;
     private double verticalSegmentSize = 0;
     private double maxValue = 20;
-    private final int insignificantHeight = 17;
     private int verticalCellHeightSegment = 1;
     private int verticalSedimentSegment = 1;
     private String strProfile = "";
@@ -52,7 +52,7 @@ class ErosionIntervals extends Canvas implements Runnable {
      * Constructor
      * *********************************************************************************************
      */
-    public ErosionIntervals(SharedParameters sparams, String name, int type, String bt) {
+    public ErosionIntervals(String name, int type, String bt) {
         super();
         setBackground(Color.white);
         strProfile = name;
@@ -67,20 +67,7 @@ class ErosionIntervals extends Canvas implements Runnable {
         }
     }
 
-    /**
-     * ********************************************************************************************
-     * this function helps with the scaling in the graph
-     * *********************************************************************************************
-     */
-    public void passMsg(TextArea msg) {
-    }
-
-    /**
-     * ********************************************************************************************
-     * this function helps with the scaling in the graph
-     * *********************************************************************************************
-     */
-    public void passParms(double min, double max) {
+    public void passParms(double max) {
         amplifyHorizontalSize = 1;
         maxValue = max;
     }
@@ -214,11 +201,7 @@ class ErosionIntervals extends Canvas implements Runnable {
             osGraph.drawLine(marginLeft, marginTop, marginLeft, size.height - marginBottom);
             //graph references - same scaling will be used for drawing line
             //horizontal references
-            if ((0) < .50) {
-                horizontalSegmentSize = (size.width - marginLeft) / arrayIndex;
-            } else {
-                horizontalSegmentSize = ((size.width - marginLeft) / arrayIndex) + 1;
-            }
+            horizontalSegmentSize = (size.width - marginLeft) / arrayIndex;
 
             //this is to scale the horizontal references
             if (horizontalSegmentSize > 2) {

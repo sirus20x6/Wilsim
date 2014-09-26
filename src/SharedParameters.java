@@ -16,17 +16,22 @@
 import java.awt.*;
 
 class SharedParameters {
+    // These are set by the UI for use by the simulation
+    static final Label values1 = new Label("Total Iterations: ");
+    static final Label values2 = new Label("                                ");
+    static final Label values3 = new Label("# iterations processed:");
+    static final Label values4 = new Label("                                ");
     // Shared parameters
     static int COLUMNS, OLDCOLUMNS;
     static int ROWS, OLDROWS;
     static double BARWIDTH;
     static double SLOPE, OLDSLOPE;
     static int ENDTIME;
-    static double SEDIMENT;
     static double EROSION, RANDVALUE;
     static boolean RANDEROSION;
     static boolean ROUTINESTARTED;
     static int ITERATIONCOUNTER;
+    static int reverseIterationCounter;
     static int YPOINT;
     static int XPOINT;
     static double YRANDTOP, YRANDBOTTOM;
@@ -34,7 +39,6 @@ class SharedParameters {
     static double RAINFALLRATEDEFAULT;
     static double RAININCREASELOW, RAININCREASEHIGH;
     static double RAINDECREASELOW, RAINDECREASEHIGH;
-    static boolean CLIMATEDEFAULT, INCREASEON, DECREASEON;
     static double CARRYINGCAPACITY;
     static double TIMESTEP;
     static int BARSPROCESSED;
@@ -47,20 +51,14 @@ class SharedParameters {
     static int STEPCOUNTER;
     static boolean STARTALLOVER;
     static int OLDX, OLDY;
-    static boolean PREVIOUSTAB, NEXTTAB;
     static int TOTALYEARS;
     static int COLINTERVALS;
     static int ROWINTERVALS;
     static double HEIGHTDIFFERENCE;
-    static int COLORCHANGE;
-    static boolean FIRSTINTERVAL, AVGVISIBLE, COLVISIBLE, ROWVISIBLE, HYPSOMETRIC;
-
-    // These are set by the UI for use by the simulation
-    static final Label values1 = new Label("Total Iterations: ");
-    static final Label values2 = new Label("                                ");
-    static final Label values3 = new Label("# iterations processed:");
-    static final Label values4 = new Label("                                ");
-    static Button SHOWSURFACEBUTTON;
+    static boolean AVGVISIBLE;
+    static boolean COLVISIBLE;
+    static boolean ROWVISIBLE;
+    static boolean HYPSOMETRIC;
 
     /**
      * ********************************************************************************************
@@ -75,7 +73,6 @@ class SharedParameters {
         BARWIDTH = 1;
         ENDTIME = 10000;
         OLDSLOPE = SLOPE = 0.01;
-        SEDIMENT = 0.0;
         EROSION = 0.05;
         RANDEROSION = false;
         boolean SHOWTEXT = false;
@@ -99,9 +96,6 @@ class SharedParameters {
         RAINDECREASELOW = 0;
         RAININCREASEHIGH = 0;
         RAINDECREASEHIGH = 0;
-        CLIMATEDEFAULT = true;
-        INCREASEON = false;
-        DECREASEON = false;
         ROUTINESTARTED = false;
         TIMESTEP = 1;
         BARSPROCESSED = 0;
@@ -110,14 +104,11 @@ class SharedParameters {
         EROSIONNEEDED = true;
         CARRYINGCAPACITY = 0.1;
         OLDX = OLDY = 0;
-        PREVIOUSTAB = false;
-        NEXTTAB = true;
         TOTALYEARS = 0;
         RANDVALUE = 0;
         int SAVECOUNTER = 0;
         HEIGHTDIFFERENCE = 0;
-        COLORCHANGE = 0;
-        FIRSTINTERVAL = RESETINTERVALSLEGEND = false;
+        //FIRSTINTERVAL = RESETINTERVALSLEGEND = false;
         AVGVISIBLE = COLVISIBLE = ROWVISIBLE = HYPSOMETRIC = false;
         COLINTERVALS = 1;
         ROWINTERVALS = 1;

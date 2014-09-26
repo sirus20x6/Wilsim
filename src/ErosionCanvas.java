@@ -1,10 +1,10 @@
 /***********************************************************************************************
- CLASS:	      ErosionCanvas
+ CLASS:	      EROSIONCANVAS
 
  FUNCTION:     This class creates and renders the image representing the simulation.
  The class contains:
  -Constructor:
- *public ErosionCanvas() = all variables are initialized to default values.
+ *public EROSIONCANVAS() = all variables are initialized to default values.
  -Helping functions:
  *public void start() = to get the thread started.
  *public void paint(Graphics g) = to draw the image.
@@ -19,13 +19,13 @@
  *public void redraw()
  *public void setWallColor(int r, int g, int b)
  *public void setDataColor(int row, int col, int r, int g, int b)
- *public void setDataHeight(int row, int col, float height)
+ *public void setDataHeight(int row, int col, double height)
  *public synchronized void setGridSize(int rows, int columns)
- *public synchronized void setViewHeight(float height)
+ *public synchronized void setViewHeight(double height)
  *public synchronized void setAltitude(int val)
  *public synchronized void setHeading(int val)
  *private void setRenderOrder()
- *private void quadClipDraw(float x_in, float y_in, boolean end_flag)
+ *private void quadClipDraw(double x_in, double y_in, boolean end_flag)
  *private void scanConvert()
  *private void insertEdgeList(int index)
  *private void makeEdgeRec(int lower, int upper, int index)
@@ -47,111 +47,91 @@
 import java.awt.*;
 import java.awt.image.MemoryImageSource;
 
-class ErosionCanvas extends Canvas implements Runnable {
-
-    private Image backing;   // For backing store
-    private Graphics bg;
-    private boolean backingImageSetup;
-
-    private Image render;    // For rendering
-    private int pixels[];
-    private MemoryImageSource source;
-    private boolean renderImageSetup;
-
-    private final Thread thread;   // The rendering thread
-
-    private boolean newCanvasSize;  // Canvas has changed size
-    private boolean newOrientation; // Projection direction has changed
-    private boolean dataChange;
-    private boolean setup;
-
-    private int xSize, ySize;  // The size of the rendering canvas in pixels
-
-    // Grid information
-
-    private int gridxSize, gridySize;
-    private float gridZ[];   // Data stored in a 1D grid for speed
-    private int gridColor[];
-
-    private int borderColor;
-
-    // Grid rendering parameters
-
-    private int xRenderStart, xRenderEnd, xRenderInc;
-    private int yRenderStart, yRenderEnd, yRenderInc;
-
-    private final float[] screen1old;
-    private final float[] screen2old;
-    private final float[] screen1new;
-    private final float[] screen2new;
-    private final float[] world1old;
-    private final float[] world2old;
-    private final float[] world1new;
-    private final float[] world2new;
-    private final float[] v1;
-    private final float[] v2;
-    private final float[] normal;
-    private float normalFlip;
+class EROSIONCANVAS extends Canvas implements Runnable {
 
     // Polygon clipping
     private final static boolean MOVE = false;
     private final static boolean DRAW = true;
     private final static int MAX_VERTEX_LIST_SIZE = 4;
-    private final float[] clippedVertexX;
-    private final float[] clippedVertexY;
-    private int nVertex;
+    private final Thread thread;   // The rendering thread
+    private final double[] screen1old;
+    private final double[] screen2old;
+    private final double[] screen1new;
+    private final double[] screen2new;
+    private final double[] world1old;
+    private final double[] world2old;
+    private final double[] world1new;
+    private final double[] world2new;
+    private final double[] v1;
 
+    // Grid information
+    private final double[] v2;
+    private final double[] normal;
+    private final double[] clippedVertexX;
+    private final double[] clippedVertexY;
+
+    // Grid rendering parameters
     // Polygon scan conversion
     private final Edge[] edges;
-
-    private Edge edgeList;
-    private Edge activeEdgeList;
+    private final Xform clipToScreen;
+    private final Xform cameraToClip;
+    private final Xform cameraToScreen;
+    private final Xform worldToCamera;
+    private final Xform worldToScreen;
+    private final Xform gridToWorld;
+    private final Xform gridToScreen;
+    private Image backing;   // For backing store
+    private Graphics bg;
+    private boolean backingImageSetup;
+    private Image render;    // For rendering
+    private int pixels[];
+    private MemoryImageSource source;
+    private boolean renderImageSetup;
+    private boolean newCanvasSize;  // Canvas has changed size
+    private boolean newOrientation; // Projection direction has changed
+    private boolean dataChange;
+    private boolean setup;
+    private int xSize, ySize;  // The size of the rendering canvas in pixels
+    private int gridxSize, gridySize;
+    private double gridZ[];   // Data stored in a 1D grid for speed
+    private int gridColor[];
 
     // For debugging purposes
-
-    private int backgroundColor;
-    private int drawingColor;
-
-    private float aspect;     // The aspect ratio of the canvas
-    private float heading, altitude;  // Viewing angles in radians
-
-    private final Xform clipToScreen;
+    private int borderColor;
+    private int xRenderStart, xRenderEnd, xRenderInc;
+    private int yRenderStart, yRenderEnd, yRenderInc;
+    private double normalFlip;
+    private int nVertex;
     // Holds the transformation from clipping coordinates
     // to device coordinates
-
-    private final Xform cameraToClip;
+    private Edge edgeList;
     // Holds the transformation from camera coordinates
     // to clipping coordinates
-
-    private final Xform cameraToScreen;
+    private Edge activeEdgeList;
     // Holds the transformation from camera coordinates
     // to clipping coordinates
-
-    private final Xform worldToCamera;
+    private int backgroundColor;
     // Holds the transformations from world coordinates to 
     // camera coordinates
-
-    private final Xform worldToScreen;
+    private int drawingColor;
     // Holds the composite transformation from world coordinates to 
     // screen coordinates.  This may be removed later.
-
-    private final Xform gridToWorld;
+    private double aspect;     // The aspect ratio of the canvas
     // Holds the transformations from grid coordinates to 
     // world coordinates
-
-    private final Xform gridToScreen;
+    private double heading, altitude;  // Viewing angles in radians
     // Holds the composite transformation from grid coordinates to 
     // screen coordinates
 
-    public ErosionCanvas() {
+    public EROSIONCANVAS() {
         // Some initial values
         xSize = 200;
         ySize = 200;  // Just a random initial value
 
         backgroundColor = 0; // black
 
-        heading = -30.0f * (float) Math.PI / 180.0f;
-        altitude = 30.0f * (float) Math.PI / 180.0f;
+        heading = -30.0f * Math.PI / 180.0f;
+        altitude = 30.0f * Math.PI / 180.0f;
 
         // 3D transformation initialization
         clipToScreen = new Xform();
@@ -162,7 +142,7 @@ class ErosionCanvas extends Canvas implements Runnable {
         gridToWorld = new Xform();
         gridToScreen = new Xform();
 
-        aspect = (float) xSize / ySize;
+        aspect = (double) xSize / ySize;
 
         calculateClipToScreen();
         calculateCameraToClip();
@@ -174,7 +154,7 @@ class ErosionCanvas extends Canvas implements Runnable {
 
         // Data grid initialization
         gridxSize = gridySize = 1;
-        gridZ = new float[1];
+        gridZ = new double[1];
         gridColor = new int[1];
 
         xRenderStart = 0;
@@ -185,19 +165,19 @@ class ErosionCanvas extends Canvas implements Runnable {
         yRenderInc = -1;
 
         // Rendering parameter initialization
-        screen1old = new float[3];
-        screen2old = new float[3];
-        screen1new = new float[3];
-        screen2new = new float[3];
+        screen1old = new double[3];
+        screen2old = new double[3];
+        screen1new = new double[3];
+        screen2new = new double[3];
 
-        world1old = new float[3];
-        world2old = new float[3];
-        world1new = new float[3];
-        world2new = new float[3];
+        world1old = new double[3];
+        world2old = new double[3];
+        world1new = new double[3];
+        world2new = new double[3];
 
-        v1 = new float[3];
-        v2 = new float[3];
-        normal = new float[3];
+        v1 = new double[3];
+        v2 = new double[3];
+        normal = new double[3];
 
         // State flag initialization
         newCanvasSize = false;
@@ -206,14 +186,14 @@ class ErosionCanvas extends Canvas implements Runnable {
 
         backingImageSetup = false;
         renderImageSetup = false;
-        setup = backingImageSetup && renderImageSetup;
+        setup = false;
 
 
         // Set up the clipping pipeline
-        float[] unclippedVertexX = new float[MAX_VERTEX_LIST_SIZE];
-        float[] unclippedVertexY = new float[MAX_VERTEX_LIST_SIZE];
-        clippedVertexX = new float[MAX_VERTEX_LIST_SIZE * 2];
-        clippedVertexY = new float[MAX_VERTEX_LIST_SIZE * 2];
+//        double[] unclippedVertexX = new double[MAX_VERTEX_LIST_SIZE];
+//        double[] unclippedVertexY = new double[MAX_VERTEX_LIST_SIZE];
+        clippedVertexX = new double[MAX_VERTEX_LIST_SIZE * 2];
+        clippedVertexY = new double[MAX_VERTEX_LIST_SIZE * 2];
         nVertex = 0;
 
         // Set up the scan conversion structures
@@ -274,7 +254,7 @@ class ErosionCanvas extends Canvas implements Runnable {
 
         // Some initialization code
         backingImageSetup = true;
-        setup = backingImageSetup && renderImageSetup;
+        setup = renderImageSetup;
 
         // Start up the renderer
         newCanvasSize = true;
@@ -315,7 +295,7 @@ class ErosionCanvas extends Canvas implements Runnable {
                     render = createImage(source);
 
                     // New rendering parameters
-                    aspect = (float) xSize / ySize;
+                    aspect = (double) xSize / ySize;
                     calculateClipToScreen();
                     calculateCameraToClip();
                     Xform.mult(cameraToScreen,
@@ -325,7 +305,7 @@ class ErosionCanvas extends Canvas implements Runnable {
                     Xform.mult(gridToScreen,
                             worldToScreen, gridToWorld);
                     renderImageSetup = true;
-                    setup = backingImageSetup && renderImageSetup;
+                    setup = backingImageSetup;
 
                     //msg.append("new rendering area: " + xSize + ", " + ySize + "\n");
                 }
@@ -371,16 +351,14 @@ class ErosionCanvas extends Canvas implements Runnable {
 
     private boolean upToDate() {
         //msg.append("upToDate(): " + count++ + "\n");
-        if (newCanvasSize)
-            return false;
-        return !newOrientation && !dataChange;
+        return !newCanvasSize && !newOrientation && !dataChange;
 
     }
 
     private void render() {
         int x, y;
 
-        float z;
+        double z;
 
         // There are some speedup measures that can be taken here by
         // reusing values from one grid element to another
@@ -492,7 +470,7 @@ class ErosionCanvas extends Canvas implements Runnable {
     private void drawBorders() {
         int x, y;
 
-        float z;
+        double z;
 
         // Side
         x = xRenderEnd;
@@ -668,10 +646,10 @@ class ErosionCanvas extends Canvas implements Runnable {
         normal[2] = v1[0] * v2[1] - v2[0] * v1[1];
 
         // Must normalize normal vector -- ouch!
-        float factor = normal[0] * normal[0]
+        double factor = normal[0] * normal[0]
                 + normal[1] * normal[1] + normal[2] * normal[2];
 
-        factor = (float) Math.sqrt(factor);
+        factor = Math.sqrt(factor);
 
         normal[0] /= factor;
         //normal[1] /= factor;
@@ -680,7 +658,7 @@ class ErosionCanvas extends Canvas implements Runnable {
         // Hard wire to white for now
 
         // Dot product with normalized (-1, 0, 1)
-        float dot = normal[0] * -0.70710678f + normal[2] * 0.70710678f;
+        double dot = normal[0] * -0.70710678f + normal[2] * 0.70710678f;
 
         dot *= normalFlip;
 
@@ -708,7 +686,7 @@ class ErosionCanvas extends Canvas implements Runnable {
 
     public synchronized void setHeading(int val) {
         // In the range of -180 to 180 degrees
-        heading = (float) (val) * (float) Math.PI / 180.0f;
+        heading = (double) (val) * Math.PI / 180.0f;
         //msg.append("Heading: " + val + "\n");
         newOrientation = true;
         notify();
@@ -716,16 +694,10 @@ class ErosionCanvas extends Canvas implements Runnable {
 
     public synchronized void setAltitude(int val) {
         // In the range of 0 to 90 degrees
-        altitude = (float) (val) * (float) Math.PI / 180.0f;
+        altitude = (double) (val) * Math.PI / 180.0f;
         //msg.append("Altitude: " + val + "\n");
         newOrientation = true;
         notify();
-    }
-
-    public synchronized void setViewHeight() {
-        // Unused for now
-        // Meant to record a mean data height so as to better center
-        // the view
     }
 
     public synchronized void setGridSize(int rows, int columns) {
@@ -744,7 +716,7 @@ class ErosionCanvas extends Canvas implements Runnable {
         gridZ = null;
         gridColor = null;
 
-        gridZ = new float[gridxSize * gridySize];
+        gridZ = new double[gridxSize * gridySize];
         gridColor = new int[gridxSize * gridySize];
 
         calculateGridToWorld();
@@ -756,7 +728,7 @@ class ErosionCanvas extends Canvas implements Runnable {
         notify();
     }
 
-    public void setDataHeight(int row, int col, float height) {
+    public void setDataHeight(int row, int col, double height) {
         // No error checking is done here --- inherently dangerous
 
         //msg.append("setDataHeight: " + row + ", " + col +  ": " + height + "\n");
@@ -764,8 +736,8 @@ class ErosionCanvas extends Canvas implements Runnable {
         gridZ[row * gridxSize + col] = height;
 
 	/*
-	// Hack for testing
-	float x, y;
+    // Hack for testing
+	double x, y;
 	x = (col - 25) / 25.0f;
 	y = (row - 25) / 25.0f;
 
@@ -833,7 +805,7 @@ class ErosionCanvas extends Canvas implements Runnable {
         }
     }
 
-    private void quadClipDraw(float x_in, float y_in, boolean end_flag) {
+    private void quadClipDraw(double x_in, double y_in, boolean end_flag) {
         // Full clipping not really needed for this application
         // Just move vertices to edge
 
@@ -865,7 +837,7 @@ class ErosionCanvas extends Canvas implements Runnable {
 
         // Find screen extent in y
 
-        float ymax;
+        double ymax;
         ymax = clippedVertexY[0];
         for (int i = 1; i < nVertex; i++) {
             if (clippedVertexY[i] > ymax)
@@ -922,7 +894,7 @@ class ErosionCanvas extends Canvas implements Runnable {
 
 
     private void makeEdgeRec(int lower, int upper, int index) {
-        float divisor, factor;
+        double divisor, factor;
 
         divisor = clippedVertexY[upper] - clippedVertexY[lower];
 
@@ -932,7 +904,7 @@ class ErosionCanvas extends Canvas implements Runnable {
         // Not doing color interpolation now
 
         // Find initial sample position value where edge intersects scanline
-        factor = (float) Math.ceil(clippedVertexY[lower]) - clippedVertexY[lower];
+        factor = Math.ceil(clippedVertexY[lower]) - clippedVertexY[lower];
 
         edges[index].x = clippedVertexX[lower] + factor * edges[index].dx;
         edges[index].y = (int) Math.ceil(clippedVertexY[lower]);
@@ -1084,7 +1056,7 @@ class ErosionCanvas extends Canvas implements Runnable {
         // Calculate the transformation from grid coordinates to
         // world coordinates
 
-        float scale = Math.max(gridxSize, gridySize);
+        double scale = Math.max(gridxSize, gridySize);
         scale = 2.0f / scale;
 
         gridToWorld.set(0, 0, scale);
@@ -1113,17 +1085,17 @@ class ErosionCanvas extends Canvas implements Runnable {
     }
 
     private void calculateWorldToCamera() {
-        float cosHeading, sinHeading, cosAltitude, sinAltitude;
+        double cosHeading, sinHeading, cosAltitude, sinAltitude;
 
         // This is a composite transformation consisting of
         // 1) a rotation in the xy plane (heading  0-2PI radians)
         // 2) a rotation in the yz plane (altitude 0-PI/2 radians)
         // 3) a rotation in yz by -90 degrees to put into camera coordinates
 
-        cosHeading = (float) Math.cos(heading);
-        sinHeading = (float) Math.sin(heading);
-        cosAltitude = (float) Math.cos(altitude);
-        sinAltitude = (float) Math.sin(altitude);
+        cosHeading = Math.cos(heading);
+        sinHeading = Math.sin(heading);
+        cosAltitude = Math.cos(altitude);
+        sinAltitude = Math.sin(altitude);
 
         worldToCamera.set(0, 0, cosHeading);
         worldToCamera.set(0, 1, -sinHeading);
@@ -1145,12 +1117,12 @@ class ErosionCanvas extends Canvas implements Runnable {
  * The class contains:
  * -Utility functions:
  * public static void mult(Xform result, Xform op1, Xform op2)
- * public static float multRow(int row, Xform xform, float x, float y, float z)
- * public static void rotateXY(Xform xform, float angle)
- * public static void rotateYZ(Xform xform, float angle)
- * public static void rotateZX(Xform xform, float angle)
- * public float get(int row, int col)
- * public void set(int row, int col, float value)
+ * public static double multRow(int row, Xform xform, double x, double y, double z)
+ * public static void rotateXY(Xform xform, double angle)
+ * public static void rotateYZ(Xform xform, double angle)
+ * public static void rotateZX(Xform xform, double angle)
+ * public double get(int row, int col)
+ * public void set(int row, int col, double value)
  * <p/>
  * DATE CREATED: August 2002
  * *********************************************************************************************
@@ -1159,7 +1131,7 @@ class Xform {
     // Matrix is assumed to be stored in row major order
     // 1-D array used for minor speedups
 
-    private final float[] matrix = {1.0f, 0.0f, 0.0f, 0.0f,
+    private final double[] matrix = {1.0f, 0.0f, 0.0f, 0.0f,
             0.0f, 1.0f, 0.0f, 0.0f,
             0.0f, 0.0f, 1.0f, 0.0f,
             0.0f, 0.0f, 0.0f, 1.0f};
@@ -1271,7 +1243,7 @@ class Xform {
 
     }
 
-    public static float multRow(int row, Xform xform, float x, float y, float z) {
+    public static double multRow(int row, Xform xform, double x, double y, double z) {
         return
                 xform.matrix[(row * 4)] * x +
                         xform.matrix[row * 4 + 1] * y +
@@ -1279,124 +1251,13 @@ class Xform {
                         xform.matrix[row * 4 + 3];
     }
 
-    public static void rotateXY(Xform xform, float angle) {
-        // Appends a rotation matrix in the xy plane to the
-        // right of the given transformation
-        // Angle is in degrees
-
-        angle *= (float) (Math.PI / 180.0);
-        float cos = (float) Math.cos(angle);
-        float sin = (float) Math.sin(angle);
-
-        float a, b;  // Temporary holding variables
-
-        // First row
-        a = xform.matrix[0];
-        b = xform.matrix[1];
-        xform.matrix[0] = a * cos + b * sin;
-        xform.matrix[1] = -a * sin + b * cos;
-
-        // Second row
-        a = xform.matrix[4];
-        b = xform.matrix[4 + 1];
-        xform.matrix[4] = a * cos + b * sin;
-        xform.matrix[4 + 1] = -a * sin + b * cos;
-
-        // Third row
-        a = xform.matrix[(2 * 4)];
-        b = xform.matrix[2 * 4 + 1];
-        xform.matrix[(2 * 4)] = a * cos + b * sin;
-        xform.matrix[2 * 4 + 1] = -a * sin + b * cos;
-
-        // Fourth row
-        a = xform.matrix[(3 * 4)];
-        b = xform.matrix[3 * 4 + 1];
-        xform.matrix[(3 * 4)] = a * cos + b * sin;
-        xform.matrix[3 * 4 + 1] = -a * sin + b * cos;
-
-    }
-
-    public static void rotateYZ(Xform xform, float angle) {
-        // Appends a rotation matrix in the yz plane to the
-        // right of the given transformation
-        // Angle is in degrees
-
-        angle *= (float) (Math.PI / 180.0);
-        float cos = (float) Math.cos(angle);
-        float sin = (float) Math.sin(angle);
-
-        float a, b;  // Temporary holding variables
-
-        // First row
-        a = xform.matrix[1];
-        b = xform.matrix[2];
-        xform.matrix[1] = a * cos + b * sin;
-        xform.matrix[2] = -a * sin + b * cos;
-
-        // Second row
-        a = xform.matrix[4 + 1];
-        b = xform.matrix[4 + 2];
-        xform.matrix[4 + 1] = a * cos + b * sin;
-        xform.matrix[4 + 2] = -a * sin + b * cos;
-
-        // Third row
-        a = xform.matrix[2 * 4 + 1];
-        b = xform.matrix[2 * 4 + 2];
-        xform.matrix[2 * 4 + 1] = a * cos + b * sin;
-        xform.matrix[2 * 4 + 2] = -a * sin + b * cos;
-
-        // Fourth row
-        a = xform.matrix[3 * 4 + 1];
-        b = xform.matrix[3 * 4 + 2];
-        xform.matrix[3 * 4 + 1] = a * cos + b * sin;
-        xform.matrix[3 * 4 + 2] = -a * sin + b * cos;
-
-    }
-
-    public static void rotateZX(Xform xform, float angle) {
-        // Appends a rotation matrix in the zx plane to the
-        // right of the given transformation
-        // Angle is in degrees
-
-        angle *= (float) (Math.PI / 180.0);
-        float cos = (float) Math.cos(angle);
-        float sin = (float) Math.sin(angle);
-
-        float a, b;  // Temporary holding variables
-
-        // First row
-        a = xform.matrix[0];
-        b = xform.matrix[2];
-        xform.matrix[0] = a * cos - b * sin;
-        xform.matrix[2] = a * sin + b * cos;
-
-        // Second row
-        a = xform.matrix[4];
-        b = xform.matrix[4 + 2];
-        xform.matrix[4] = a * cos - b * sin;
-        xform.matrix[4 + 2] = a * sin + b * cos;
-
-        // Third row
-        a = xform.matrix[(2 * 4)];
-        b = xform.matrix[2 * 4 + 2];
-        xform.matrix[(2 * 4)] = a * cos - b * sin;
-        xform.matrix[2 * 4 + 2] = a * sin + b * cos;
-
-        // Fourth row
-        a = xform.matrix[(3 * 4)];
-        b = xform.matrix[3 * 4 + 2];
-        xform.matrix[(3 * 4)] = a * cos - b * sin;
-        xform.matrix[3 * 4 + 2] = a * sin + b * cos;
-
-    }
-
-    public float get(int col) {
+    public double get(int col) {
         // Return the matrix entry at the row and column
 
         return matrix[col];
     }
 
-    public void set(int row, int col, float value) {
+    public void set(int row, int col, double value) {
         // Set the matrix entry at the row and column
 
         matrix[row * 4 + col] = value;
@@ -1418,21 +1279,21 @@ class Edge {
     int yUpper; // Final scan line of edge
     int y;
 
-    float x;
-    float dx;
+    double x;
+    double dx;
     Edge next;
 
 
     Edge() {
         x = 0.0f;
         y = 0;
-        float b;
-        float g;
-        float r = g = b = 255.0f;
+        double b;
+        double g;
+        double r = g = b = 255.0f;
 
-        float db;
-        float dg;
-        float dr;
+        double db;
+        double dg;
+        double dr;
         dx = dr = dg = db = 0.0f;
 
         next = null;

@@ -19,19 +19,18 @@
 import java.awt.*;
 
 class ErosionHypsometric extends Canvas implements Runnable {
-    private Dimension size;
-    private Thread runHypsometric = null;
+    private static final int HINTERVAL = 11;
+    private static final int marginLeft = 25;
+    private static final int marginBottom = 25;
     private final Font f = new Font("Times Roman", Font.BOLD, 12);
     private final Font f1 = new Font("Times Roman", Font.BOLD, 10);
     private final double[] relativeHeight;
     private final double[] relativeArea;
-    private static final int HINTERVAL = 11;
-
+    private Dimension size;
+    private Thread runHypsometric = null;
     //to work on the offscreen
     private Image osImage = null;
     private Graphics osGraph = null;
-    private final int marginLeft = 25;
-    private final int marginBottom = 25;
     private int minY;
     private int maxY;
     private int minX;
@@ -42,7 +41,7 @@ class ErosionHypsometric extends Canvas implements Runnable {
      * Constructor
      * *********************************************************************************************
      */
-    public ErosionHypsometric(SharedParameters sparams) {
+    public ErosionHypsometric() {
         super();
         setBackground(Color.white);
         relativeHeight = new double[HINTERVAL];

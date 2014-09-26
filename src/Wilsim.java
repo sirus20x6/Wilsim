@@ -2,11 +2,11 @@
  CLASS:	      Wilsim
 
  FUNCTION:     Wilsim declares and instantiates objects from the ErosionUI, ErosionSim,
- ErosionCanvas, ErosionIntervals, ErosionHypsometric and SharedParameters classes.
+ EROSIONCANVAS, ErosionIntervals, ErosionHypsometric and SharedParameters classes.
  The class contains:
  -init()
  It creates objects from the classes metioned and calls starts running the
- threads for the ErosionSim and ErosionCanvas objects.
+ threads for the ErosionSim and EROSIONCANVAS objects.
  -start()
  To get the user interface started after all other threads have been started
 
@@ -21,30 +21,30 @@ public class Wilsim extends Applet {
     public void init() {
         SharedParameters sparam = new SharedParameters();
 
-        ErosionCanvas ecanv = new ErosionCanvas();
+        EROSIONCANVAS ecanv = new EROSIONCANVAS();
         ecanv.start();
 
-        ErosionCanvas ecanv25p = new ErosionCanvas();
+        EROSIONCANVAS ecanv25p = new EROSIONCANVAS();
         ecanv25p.start();
-        ErosionCanvas ecanv50p = new ErosionCanvas();
+        EROSIONCANVAS ecanv50p = new EROSIONCANVAS();
         ecanv50p.start();
-        ErosionCanvas ecanv75p = new ErosionCanvas();
+        EROSIONCANVAS ecanv75p = new EROSIONCANVAS();
         ecanv75p.start();
-        ErosionCanvas ecanv100p = new ErosionCanvas();
+        EROSIONCANVAS ecanv100p = new EROSIONCANVAS();
         ecanv100p.start();
 
-        ErosionHypsometric eh = new ErosionHypsometric(sparam);
+        ErosionHypsometric eh = new ErosionHypsometric();
 
         int type2 = 2;
-        ErosionIntervals eintervals = new ErosionIntervals(sparam, "Average", type2, "Rows");
+        ErosionIntervals eintervals = new ErosionIntervals("Average", type2, "Rows");
         int type1 = 1;
-        ErosionIntervals eintsediment = new ErosionIntervals(sparam, "Average Sediment", type1, "Rows");
-        ErosionIntervals ecolumn = new ErosionIntervals(sparam, "Column", type2, "Rows");
-        ErosionIntervals ecolsediment = new ErosionIntervals(sparam, "Column Sediment", type1, "Rows");
-        ErosionIntervals erow = new ErosionIntervals(sparam, "Row", type2, "Columns");
-        ErosionIntervals erowsediment = new ErosionIntervals(sparam, "Row Sediment", type1, "Columns");
+        ErosionIntervals eintsediment = new ErosionIntervals("Average Sediment", type1, "Rows");
+        ErosionIntervals ecolumn = new ErosionIntervals("Column", type2, "Rows");
+        ErosionIntervals ecolsediment = new ErosionIntervals("Column Sediment", type1, "Rows");
+        ErosionIntervals erow = new ErosionIntervals("Row", type2, "Columns");
+        ErosionIntervals erowsediment = new ErosionIntervals("Row Sediment", type1, "Columns");
 
-        ErosionSim esim = new ErosionSim(sparam, ecanv, ecanv25p, ecanv50p, ecanv75p, ecanv100p, eintervals, eintsediment, ecolumn, ecolsediment, erow, erowsediment, eh);
+        ErosionSim esim = new ErosionSim(ecanv, ecanv25p, ecanv50p, ecanv75p, ecanv100p, eintervals, eintsediment, ecolumn, ecolsediment, erow, erowsediment, eh);
         esim.start();
 
         eui = new ErosionUI(this, esim, sparam, ecanv, ecanv25p, ecanv50p, ecanv75p, ecanv100p, eintervals, eintsediment, ecolumn, ecolsediment, erow, erowsediment, eh);
