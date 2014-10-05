@@ -502,7 +502,6 @@ class ErosionUI implements ItemListener, AdjustmentListener, ActionListener {
         climateTabPanelupwest.setLayout(new GridBagLayout());
         CustomPanel climateTabPanelupeast = new CustomPanel(70, 170, 0, 0, 0, 0);
         climateTabPanelupeast.setLayout(new BorderLayout());
-        CustomPanel climateTabPanelupeasttop = new CustomPanel(70, 30, 0, 0, 0, 0);
         CustomPanel climateTabPanelupchoicearrows = new CustomPanel(40, 140, 20, 0, 25, 0);
         climateTabPanelupchoicearrows.setLayout(new GridBagLayout());
         CustomPanel climateTabPanelupslider = new CustomPanel(30, 140, 20, 0, 20, 0);
@@ -1549,7 +1548,7 @@ class ErosionUI implements ItemListener, AdjustmentListener, ActionListener {
         e100p.setBackgroundColor(snapshotpanelColor);
 
         //add panels
-        sPanel = new SurfacePanel(e2, e1);
+        sPanel = new SurfacePanel(sparams,e2, e1);
         erosionPanel.add(sPanel, BorderLayout.CENTER);
         initialConditionsTabPanelup.add(initialConditionsTabPanelupwest, BorderLayout.WEST);
         initialConditionsTabPanelupchoicearrows.add(initialConditionsTabPanelupchoice, BorderLayout.WEST);
@@ -2447,7 +2446,7 @@ class ErosionUI implements ItemListener, AdjustmentListener, ActionListener {
                 }
             } else if ((e.getSource() == tectonicsadvancedSlider) && tectonicsx && tectonicsxleft) {
                 if (SharedParameters.TECTONICSXPOINT > -1) {
-                    double tectonicsleftvalue = 0;
+                    double tectonicsleftvalue;
                     int tectonicsxleft = Integer.parseInt(String.valueOf(e.getValue()));
                     tectonicsleftvalue = tectonicsxleft * 0.00001;
                     tectonicsxleftvalueLabel.set4decimalText(tectonicsleftvalue);
@@ -2459,7 +2458,7 @@ class ErosionUI implements ItemListener, AdjustmentListener, ActionListener {
                 }
             } else if ((e.getSource() == tectonicsadvancedSlider) && tectonicsx && tectonicsxright) {
                 if (SharedParameters.TECTONICSXPOINT > -1) {
-                    double tectonicsrightvalue = 0;
+                    double tectonicsrightvalue;
                     int tectonicsxright = Integer.parseInt(String.valueOf(e.getValue()));
                     tectonicsrightvalue = tectonicsxright * 0.00001;
                     tectonicsxrightvalueLabel.set4decimalText(tectonicsrightvalue);
@@ -2471,7 +2470,7 @@ class ErosionUI implements ItemListener, AdjustmentListener, ActionListener {
                 }
             } else if ((e.getSource() == tectonicsadvancedSlider) && tectonicsy && tectonicsytop) {
                 if (SharedParameters.TECTONICSYPOINT > -1) {
-                    double tectonicstopvalue = 0;
+                    double tectonicstopvalue;
                     int tectonicsytop = Integer.parseInt(String.valueOf(e.getValue()));
                     tectonicstopvalue = tectonicsytop * 0.00001;
                     tectonicsytopvalueLabel.set4decimalText(tectonicstopvalue);
@@ -2483,7 +2482,7 @@ class ErosionUI implements ItemListener, AdjustmentListener, ActionListener {
                 }
             } else if ((e.getSource() == tectonicsadvancedSlider) && tectonicsy && tectonicsybottom) {
                 if (SharedParameters.TECTONICSYPOINT > -1) {
-                    double tectonicsbottomvalue = 0;
+                    double tectonicsbottomvalue;
                     int tectonicsybottom = Integer.parseInt(String.valueOf(e.getValue()));
                     tectonicsbottomvalue = tectonicsybottom * 0.00001;
                     tectonicsybottomvalueLabel.set4decimalText(tectonicsbottomvalue);
@@ -3074,12 +3073,6 @@ class ErosionUI implements ItemListener, AdjustmentListener, ActionListener {
 class CustomPanel extends Panel {
     private final int newWidth;
     private final int newHeight;
-    //variables for the string
-    // private final String s = "";
-    //orientation
-//    private final String o = "";
-//    private final String arrow = "";
-    private final Font f = new Font("Times Roman", Font.BOLD, 14);
     //values for the default insets
     private int top = 5;
     private int left = 5;
@@ -3089,7 +3082,6 @@ class CustomPanel extends Panel {
     private int insetColor2;
     private int insetColor3;
     private boolean drawInsets = false;
-    private Color c;
     private int ycoord;
 
     /**
@@ -3209,13 +3201,20 @@ class SurfacePanel extends Panel implements ActionListener, AdjustmentListener {
     private final Button showsurfaceButton;
     private final Button resetButton;
 
+    Button getShowsurfaceButton() {
+        return showsurfaceButton;
+    }
+
+
+
     /**
      * ********************************************************************************************
      * constructor
      * *********************************************************************************************
      */
-    SurfacePanel(EROSIONCANVAS e1, ErosionSim e2) {
+    SurfacePanel(SharedParameters globalvariables, EROSIONCANVAS e1, ErosionSim e2) {
         super();
+        SharedParameters gv = globalvariables;
         ecanv = e1;
         esim = e2;
 
@@ -3233,6 +3232,7 @@ class SurfacePanel extends Panel implements ActionListener, AdjustmentListener {
         viewAltitudeSlider.addAdjustmentListener(this);
         viewPanel.add(ecanv, BorderLayout.CENTER);
         showsurfaceButton = new Button("Run");
+        gv.SHOWSURFACEBUTTON = getShowsurfaceButton();
         new ToolTip("Click to start/continue the simulation", showsurfaceButton);
         showsurfaceButton.addActionListener(this);
         resetButton = new Button("Reset");
@@ -3433,7 +3433,7 @@ class legendPanel extends Panel {
     }
 
     public void paint(Graphics g) {
-        int y = 0;
+        int y;
         Dimension d = getSize();
         int index;
 

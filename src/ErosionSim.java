@@ -88,13 +88,8 @@ import java.awt.*;
 class ErosionSim implements Runnable {
     // variables for the surface object creation
     private static final int BARMINHEIGHT = 20;
-    private static final int BARMINWIDTH = 2;
     private static final int nIntervals = 10;
     private static final int HYPSOINTERVAL = 11;
-    private static boolean startNeeded = true;
-    //double targetBar = 0;
-    //double lowestBar = 0;
-    //for messages
     private static Label values2 = new Label("");
     private static Label values4 = new Label("");
     private static int intervalStep = 1;
@@ -109,7 +104,6 @@ class ErosionSim implements Runnable {
     private final EROSIONCANVAS eCanv75P;
     private final EROSIONCANVAS eCanv100P;
     private final Thread THISTHREAD;  // The simulation thread
-    private final int[] newColor = new int[3];
     private final ErosionIntervals ei;
     private final ErosionIntervals eis;
     private final ErosionIntervals er;
@@ -124,7 +118,6 @@ class ErosionSim implements Runnable {
     private final ErosionColors colors = new ErosionColors();
     //for the hypsometric curve graph
     private final ErosionHypsometric eh;
-    private final TextArea msg;
     //to hold the grid objects
     private SurfaceBar[][] surfaceArray;
     //to save interval information
@@ -188,7 +181,7 @@ class ErosionSim implements Runnable {
         // Set up the debugging frame
         Frame errs = new Frame("Debugging info");
         errs.setSize(500, 500);
-        msg = new TextArea("");
+        TextArea msg = new TextArea("");
         errs.add(msg);
 //	errs.show();
     }
@@ -329,7 +322,7 @@ class ErosionSim implements Runnable {
                 eCanv.setWallColor();
             }
             eCanv.redraw();
-                   /*
+
             //work with the snapshots at their corresponding times
             if (SharedParameters.ITERATIONCOUNTER == SharedParameters.ENDTIME / 4) {
                 setSnapshot(eCanv25P);
@@ -342,11 +335,12 @@ class ErosionSim implements Runnable {
             }
             if (SharedParameters.ITERATIONCOUNTER == (SharedParameters.ENDTIME - 5)) {
                 setSnapshot(eCanv100P);
+
                 SharedParameters.SHOWSURFACEBUTTON.setLabel("Run");
             }
             if (SharedParameters.ITERATIONCOUNTER == SharedParameters.ENDTIME) {
                 SharedParameters.STARTALLOVER = true;
-            }                                                                   */
+            }
             Thread.yield();  // Play nice -- let someone else have some time
         }
     }//end of run()
@@ -446,18 +440,11 @@ class ErosionSim implements Runnable {
         resetSnapshots(eCanv75P);
         resetSnapshots(eCanv100P);
 
-        double y1 = 0;
-        double x1;
-        double y;
-        double x = y = x1 = y1 = 0;
-        double incrhorizontal = 0;
-        double incrvertical = incrhorizontal = 0;
-        newColor[0] = 220;
-        newColor[1] = 180;
-        newColor[2] = 0;
+
+        double y1;
+        double incrvertical = 0;
 
         firstTime = true;
-        startNeeded = true;
         SharedParameters.CARRYINGCAPACITY = 0;
         SharedParameters.STEPCOUNTER = 0;
         //steps = 0;
@@ -473,15 +460,13 @@ class ErosionSim implements Runnable {
         // create the surface
         for (int j = 0; j < SharedParameters.ROWS; j++) {
             for (int i = 0; i < SharedParameters.COLUMNS; i++) {
-                incrhorizontal = (BARMINWIDTH) * i;
-                x1 = BARMINWIDTH;
                 y1 = BARMINHEIGHT;
                 double slope = BARMINHEIGHT * SharedParameters.SLOPE * j / SharedParameters.ROWS;
                 //first row only
                 if (j == 0) {
-                    surfaceArray[j][i] = new SurfaceBar(x, 1, y1 - 1, slope, newColor[0], newColor[1], newColor[2]);
+                    surfaceArray[j][i] = new SurfaceBar(y1 - 1, slope);
                 } else {
-                    surfaceArray[j][i] = new SurfaceBar(x, x1, y1, slope, newColor[0], newColor[1], newColor[2]);
+                    surfaceArray[j][i] = new SurfaceBar(y1, slope);
                 }
                 surfaceArray[j][i].setfinalHeight();
                 resetCanvasSlope(j, i, surfaceArray[j][i].getsurfacefinalHeight());
@@ -551,7 +536,6 @@ class ErosionSim implements Runnable {
      * *********************************************************************************************
      */
     void getErosionValue() {
-        double rand = 0;
         basicErosion = 0;
         //to get erosion value if no break point has been selected
         if (SharedParameters.XPOINT < 0 && SharedParameters.YPOINT < 0) {
@@ -578,7 +562,6 @@ class ErosionSim implements Runnable {
      * *********************************************************************************************
      */
     void reverseGetErosionValue() {
-        double rand = 0;
         basicErosion = 0;
         //to get erosion value if no break point has been selected
         if (SharedParameters.XPOINT < 0 && SharedParameters.YPOINT < 0) {
@@ -734,15 +717,15 @@ class ErosionSim implements Runnable {
         //get target coordinates in local variables
         int randrow1 = jRand;
         int randcolumn1 = iRand;
-        int getsedimentx = -1;
-        int getsedimenty = -1;
+        int getsedimentx;
+        int getsedimenty;
         double sedimentTaken = 0;
 
         for (int t = 0; t < incrDiffusionIndex; t++) {
             //extract each one of the closest neighbors from vector (4 bars)
             int tempx = XCOORDDIFFUSIONARRAY[t];
             int tempy = YCOORDDIFFUSIONARRAY[t];
-            double diffusionPower = 0;
+            double diffusionPower;
             double possibleDiffusion = 1;
             double currentDiffusion = 0;
             if (diffusesedImentX > -1 && diffusesedImentY > -1) {
@@ -838,15 +821,15 @@ class ErosionSim implements Runnable {
         //get target coordinates in local variables
         int randrow1 = jRand;
         int randcolumn1 = iRand;
-        int getsedimentx = -1;
-        int getsedimenty = -1;
+        int getsedimentx;
+        int getsedimenty;
         double sedimentTaken = 0;
 
         for (int t = 0; t < incrDiffusionIndex; t++) {
             //extract each one of the closest neighbors from vector (4 bars)
             int tempx = XCOORDDIFFUSIONARRAY[t];
             int tempy = YCOORDDIFFUSIONARRAY[t];
-            double diffusionPower = 0;
+            double diffusionPower;
             double possibleDiffusion = 1;
             double currentDiffusion = 0;
             if (diffusesedImentX > -1 && diffusesedImentY > -1) {
@@ -1049,9 +1032,9 @@ class ErosionSim implements Runnable {
             int randx2 = jRand;
             int randy2 = iRand;
             //get the heights of both bars and calculate height difference
-            double heightDiff = 0;
+            double heightDiff;
             SharedParameters.HEIGHTDIFFERENCE = heightDiff = surfaceArray[randx2][randy2].getsurfacefinalHeight() - surfaceArray[newX][newy].getsurfacefinalHeight();
-            double erosionPower = 0;
+            double erosionPower;
             double possibleErosion = 1;
             double currentErosion = 0;
             double sedimentTaken = 0;
@@ -1128,9 +1111,9 @@ class ErosionSim implements Runnable {
             int randx2 = jRand;
             int randy2 = iRand;
             //get the heights of both bars and calculate height difference
-            double heightDiff = 0;
+            double heightDiff;
             SharedParameters.HEIGHTDIFFERENCE = heightDiff = surfaceArray[randx2][randy2].getsurfacefinalHeight() - surfaceArray[newX][newy].getsurfacefinalHeight();
-            double erosionPower = 0;
+            double erosionPower;
             double possibleErosion = 1;
             double currentErosion = 0;
             double sedimentTaken = 0;
@@ -1206,14 +1189,12 @@ class ErosionSim implements Runnable {
         sumIntervalsSediment = new double[SharedParameters.ROWS];
         sumColumns = new double[SharedParameters.ROWS];
         sumColumnsBedrock = new double[SharedParameters.ROWS];
-        double[] sumRows = new double[SharedParameters.ROWS];
         averageIntervals = new double[SharedParameters.ROWS];
         averageIntervalsBedrock = new double[SharedParameters.ROWS];
         columnIntervals = new double[SharedParameters.ROWS];
         columnIntervalsBedrock = new double[SharedParameters.ROWS];
         columnSediment = new double[SharedParameters.ROWS];
         for (int i = 0; i < SharedParameters.ROWS; i++) {
-            sumRows[i] = 0;
             sumIntervalsSediment[i] = 0;
             sumColumns[i] = 0;
             sumColumnsBedrock[i] = 0;
@@ -1415,7 +1396,7 @@ class ErosionSim implements Runnable {
         }
         double difference = highestBar - lowestBar;
         double interpolation = difference / 1023;
-        int colorIndex = 0;
+        int colorIndex;
         for (int x = 0; x < SharedParameters.ROWS; x++) {
             for (int y = 0; y < SharedParameters.COLUMNS; y++) {
                 colorIndex = (int) ((surfaceArray[x][y].getsurfacefinalHeight() - lowestBar) / interpolation);
@@ -1543,27 +1524,11 @@ class SurfaceBar {
 
     //will be the constructor used most often, allows the caller to
     //set the height, width, and color of the bar
-    SurfaceBar(double x, double x1, double y1, double slope,
-               int color1, int color2, int color3) {
+    SurfaceBar(double y1, double slope) {
         this.roughness = calculateRoughness();
         this.slope = slope;
         this.y1 = y1;
-        int[] barColor = new int[3];
-        if (color1 > 255) {
-            barColor[0] = 245;
-        } else {
-            barColor[0] = color1;
-        }
-        if (color2 > 255) {
-            barColor[1] = 150;
-        } else {
-            barColor[1] = color2;
-        }
-        if (color3 > 255) {
-            barColor[2] = 0;
-        } else {
-            barColor[2] = color3;
-        }
+
 //        double width = SharedParameters.BARWIDTH;
         erosion = sediment = tectonicvalue = 0;
         finalHeight = y1;

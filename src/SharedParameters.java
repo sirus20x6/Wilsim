@@ -59,6 +59,7 @@ class SharedParameters {
     static boolean COLVISIBLE;
     static boolean ROWVISIBLE;
     static boolean HYPSOMETRIC;
+    static Button SHOWSURFACEBUTTON;
 
     /**
      * ********************************************************************************************
@@ -75,8 +76,6 @@ class SharedParameters {
         OLDSLOPE = SLOPE = 0.01;
         EROSION = 0.05;
         RANDEROSION = false;
-        boolean SHOWTEXT = false;
-        boolean DONE = false;
         ITERATIONCOUNTER = 0;
         YPOINT = 0;
         YRANDTOP = 0.0;
@@ -106,13 +105,11 @@ class SharedParameters {
         OLDX = OLDY = 0;
         TOTALYEARS = 0;
         RANDVALUE = 0;
-        int SAVECOUNTER = 0;
         HEIGHTDIFFERENCE = 0;
         //FIRSTINTERVAL = RESETINTERVALSLEGEND = false;
         AVGVISIBLE = COLVISIBLE = ROWVISIBLE = HYPSOMETRIC = false;
         COLINTERVALS = 1;
         ROWINTERVALS = 1;
-        int PBREAK = 100;
     }
 }//end class SharedParameters
 

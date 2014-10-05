@@ -1284,21 +1284,6 @@ class Edge {
     Edge next;
 
 
-    Edge() {
-        x = 0.0f;
-        y = 0;
-        double b;
-        double g;
-        double r = g = b = 255.0f;
-
-        double db;
-        double dg;
-        double dr;
-        dx = dr = dg = db = 0.0f;
-
-        next = null;
-    }
-
     /*  // For debugging
     void print(TextArea msg)
     {

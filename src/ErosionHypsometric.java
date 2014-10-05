@@ -125,9 +125,6 @@ class ErosionHypsometric extends Canvas implements Runnable {
                     (size.width - fm.stringWidth("Hypsometric Curve")) / 2, 10);
             osGraph.setColor(new Color(0, 0, 255));
             osGraph.setColor(Color.black);
-            int magnify = (((size.width / SharedParameters.COLUMNS) + (size.height / SharedParameters.ROWS)) / 2);
-            int borderLeft = (size.width - (SharedParameters.COLUMNS * magnify)) / 2;
-            int borderBottom = (size.height - (SharedParameters.ROWS * magnify)) / 2;
             osGraph.setFont(f1);
             osGraph.setColor(Color.gray);
             int marginRight = 25;

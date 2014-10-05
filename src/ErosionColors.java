@@ -19,13 +19,14 @@
 class ErosionColors {
     private static final int ARRAYINDEX = 1023;
     private final int[][] colorArray = new int[ARRAYINDEX][3];
-    private int bluetocyan = 0;
-    private int cyantogreen = 0;
-    private int greentoyellow = 0;
-    private int yellowtored = 0;
+
 
     //default constructor
     ErosionColors() {
+        int bluetocyan = 0;
+        int cyantogreen = 0;
+        int greentoyellow = 0;
+        int yellowtored = 0;
         for (int i = 0; i < ARRAYINDEX; i++) {
             if (i < 255) {
                 colorArray[i][0] = 0;
