@@ -76,7 +76,6 @@ class SharedParameters {
         OLDSLOPE = SLOPE = 0.01;
         EROSION = 0.05;
         RANDEROSION = false;
-        ITERATIONCOUNTER = 0;
         YPOINT = 0;
         YRANDTOP = 0.0;
         YRANDBOTTOM = 0.0;
@@ -108,7 +107,6 @@ class SharedParameters {
         HEIGHTDIFFERENCE = 0;
         //FIRSTINTERVAL = RESETINTERVALSLEGEND = false;
         AVGVISIBLE = COLVISIBLE = ROWVISIBLE = HYPSOMETRIC = false;
-        COLINTERVALS = 1;
         ROWINTERVALS = 1;
     }
 }//end class SharedParameters

@@ -3198,8 +3198,8 @@ class SurfacePanel extends Panel implements ActionListener, AdjustmentListener {
     private static Scrollbar viewAltitudeSlider;
     private final ErosionSim esim;
     private final EROSIONCANVAS ecanv;
-    private final Button showsurfaceButton;
-    private final Button resetButton;
+    private static Button showsurfaceButton;
+    private static Button resetButton;
 
     Button getShowsurfaceButton() {
         return showsurfaceButton;
@@ -3214,7 +3214,7 @@ class SurfacePanel extends Panel implements ActionListener, AdjustmentListener {
      */
     SurfacePanel(SharedParameters globalvariables, EROSIONCANVAS e1, ErosionSim e2) {
         super();
-        SharedParameters gv = globalvariables;
+
         ecanv = e1;
         esim = e2;
 
@@ -3232,7 +3232,7 @@ class SurfacePanel extends Panel implements ActionListener, AdjustmentListener {
         viewAltitudeSlider.addAdjustmentListener(this);
         viewPanel.add(ecanv, BorderLayout.CENTER);
         showsurfaceButton = new Button("Run");
-        gv.SHOWSURFACEBUTTON = getShowsurfaceButton();
+        globalvariables.SHOWSURFACEBUTTON = getShowsurfaceButton();
         new ToolTip("Click to start/continue the simulation", showsurfaceButton);
         showsurfaceButton.addActionListener(this);
         resetButton = new Button("Reset");
