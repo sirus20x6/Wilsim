@@ -18,11 +18,12 @@
  */
 class ErosionColors {
     private static final int ARRAYINDEX = 1023;
-    private final int[][] colorArray = new int[ARRAYINDEX][3];
 
+    private final int[][] colorArray = new int[ARRAYINDEX][3];
 
     //default constructor
     ErosionColors() {
+
         int bluetocyan = 0;
         int cyantogreen = 0;
         int greentoyellow = 0;
