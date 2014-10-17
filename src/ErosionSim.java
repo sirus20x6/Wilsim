@@ -631,6 +631,7 @@ class ErosionSim implements Runnable {
      */
     private final double[] CoordHieghtArray = new double[9];
     private final double[] distance = new double[9];
+    private final double[] gradiant = new double[9];
     double squareRootTwo = Math.sqrt(2.00);
     private void getSurroundingCells() {
 
@@ -657,6 +658,8 @@ class ErosionSim implements Runnable {
                     if(surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight() < currentHeight) {
                         CoordHieghtArray[incrIndex] = surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight();
                         distance[incrIndex] = squareRootTwo;
+                        gradiant[incrIndex] = (surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight()
+                                - currentHeight) / distance[incrIndex];
                     }
                     incrIndex++;
                 }
@@ -668,6 +671,8 @@ class ErosionSim implements Runnable {
                     if(surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight() < currentHeight) {
                         CoordHieghtArray[incrIndex] = surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight();
                         distance[incrIndex] = 1;
+                        gradiant[incrIndex] = (surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight()
+                                - currentHeight) / distance[incrIndex];
                     }
                     incrIndex++;
                     incrDiffusionIndex++;
@@ -678,6 +683,8 @@ class ErosionSim implements Runnable {
                     if(surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight() < currentHeight) {
                         CoordHieghtArray[incrIndex] = surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight();
                         distance[incrIndex] = squareRootTwo;
+                        gradiant[incrIndex] = (surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight()
+                                - currentHeight) / distance[incrIndex];
                     }
                     incrIndex++;
                 }
@@ -689,6 +696,8 @@ class ErosionSim implements Runnable {
                     if(surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight() < currentHeight) {
                         CoordHieghtArray[incrIndex] = surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight();
                         distance[incrIndex] = 1;
+                        gradiant[incrIndex] = (surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight()
+                                - currentHeight) / distance[incrIndex];
                     }
                     incrIndex++;
                     incrDiffusionIndex++;
@@ -706,6 +715,8 @@ class ErosionSim implements Runnable {
                     if(surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight() < currentHeight) {
                         CoordHieghtArray[incrIndex] = surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight();
                         distance[incrIndex] = 1;
+                        gradiant[incrIndex] = (surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight()
+                                - currentHeight) / distance[incrIndex];
                     }
                     incrIndex++;
                     incrDiffusionIndex++;
@@ -716,6 +727,8 @@ class ErosionSim implements Runnable {
                     if(surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight() < currentHeight) {
                         CoordHieghtArray[incrIndex] = surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight();
                         distance[incrIndex] = squareRootTwo;
+                        gradiant[incrIndex] = (surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight()
+                                - currentHeight) / distance[incrIndex];
                     }
                     incrIndex++;
                 }
@@ -727,6 +740,8 @@ class ErosionSim implements Runnable {
                     if(surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight() < currentHeight) {
                         CoordHieghtArray[incrIndex] = surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight();
                         distance[incrIndex] = 1;
+                        gradiant[incrIndex] = (surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight()
+                                - currentHeight) / distance[incrIndex];
                     }
                     incrIndex++;
                     incrDiffusionIndex++;
@@ -737,6 +752,8 @@ class ErosionSim implements Runnable {
                     if(surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight() < currentHeight) {
                         CoordHieghtArray[incrIndex] = surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight();
                         distance[incrIndex] = squareRootTwo;
+                        gradiant[incrIndex] = (surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight()
+                                - currentHeight) / distance[incrIndex];
                     }
                     incrIndex++;
                 }//end of getting 3x3 grid in vectors
