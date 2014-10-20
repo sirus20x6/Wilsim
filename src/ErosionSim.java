@@ -633,6 +633,8 @@ class ErosionSim implements Runnable {
     private final double[] distance = new double[9];
     private final double[] gradiant = new double[9];
     double squareRootTwo = Math.sqrt(2.00);
+    int gradiantCounter = 0;
+    double gradiantSigma = 0;
     private void getSurroundingCells() {
 
         SharedParameters.BARSPROCESSED += 1;
@@ -660,6 +662,7 @@ class ErosionSim implements Runnable {
                         distance[incrIndex] = squareRootTwo;
                         gradiant[incrIndex] = (surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight()
                                 - currentHeight) / distance[incrIndex];
+                        gradiantCounter++;
                     }
                     incrIndex++;
                 }
@@ -673,6 +676,7 @@ class ErosionSim implements Runnable {
                         distance[incrIndex] = 1;
                         gradiant[incrIndex] = (surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight()
                                 - currentHeight) / distance[incrIndex];
+                        gradiantCounter++;
                     }
                     incrIndex++;
                     incrDiffusionIndex++;
@@ -685,6 +689,7 @@ class ErosionSim implements Runnable {
                         distance[incrIndex] = squareRootTwo;
                         gradiant[incrIndex] = (surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight()
                                 - currentHeight) / distance[incrIndex];
+                        gradiantCounter++;
                     }
                     incrIndex++;
                 }
@@ -698,6 +703,7 @@ class ErosionSim implements Runnable {
                         distance[incrIndex] = 1;
                         gradiant[incrIndex] = (surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight()
                                 - currentHeight) / distance[incrIndex];
+                        gradiantCounter++;
                     }
                     incrIndex++;
                     incrDiffusionIndex++;
@@ -717,6 +723,7 @@ class ErosionSim implements Runnable {
                         distance[incrIndex] = 1;
                         gradiant[incrIndex] = (surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight()
                                 - currentHeight) / distance[incrIndex];
+                        gradiantCounter++;
                     }
                     incrIndex++;
                     incrDiffusionIndex++;
@@ -729,6 +736,7 @@ class ErosionSim implements Runnable {
                         distance[incrIndex] = squareRootTwo;
                         gradiant[incrIndex] = (surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight()
                                 - currentHeight) / distance[incrIndex];
+                        gradiantCounter++;
                     }
                     incrIndex++;
                 }
@@ -742,6 +750,7 @@ class ErosionSim implements Runnable {
                         distance[incrIndex] = 1;
                         gradiant[incrIndex] = (surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight()
                                 - currentHeight) / distance[incrIndex];
+                        gradiantCounter++;
                     }
                     incrIndex++;
                     incrDiffusionIndex++;
@@ -754,9 +763,15 @@ class ErosionSim implements Runnable {
                         distance[incrIndex] = squareRootTwo;
                         gradiant[incrIndex] = (surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight()
                                 - currentHeight) / distance[incrIndex];
+                        gradiantCounter++;
                     }
                     incrIndex++;
                 }//end of getting 3x3 grid in vectors
+
+                for (int x =0; x < gradiantCounter; x++){
+                    gradiantSigma += CoordHieghtArray[x];
+                }
+
             } catch (ArrayIndexOutOfBoundsException aioobe) {
             }
         }//end of iteration and thread checking
@@ -975,8 +990,6 @@ class ErosionSim implements Runnable {
      * search for lowest cell in 3x3 grid
      * *********************************************************************************************
      */
-    ArrayList<Integer> lowerCellsX = new ArrayList<Integer>();
-    ArrayList<Integer> lowerCellsY = new ArrayList<Integer>();
     void searchlowestCell() {
         //to do certain number of iterations
 
@@ -996,9 +1009,6 @@ class ErosionSim implements Runnable {
 
             //if next bar is lower than current, change value of index
             if (bar2height < bar1height) {
-                //gradiant.add(currentMinHeight);
-                lowerCellsX.add(xcoord2);
-                lowerCellsY.add(ycoord2);
                 currentMinHeight = nextHeight;
             }
         }//end of for loop
@@ -1085,15 +1095,19 @@ class ErosionSim implements Runnable {
         if (keepGoing) {
             int randx2 = jRand;
             int randy2 = iRand;
+            double proportionalFlow;
             //get the heights of both bars and calculate height difference
             double heightDiff;
             SharedParameters.HEIGHTDIFFERENCE = heightDiff = surfaceArray[randx2][randy2].getsurfacefinalHeight() - surfaceArray[newX][newY].getsurfacefinalHeight();
+
+            proportionalFlow =  heightDiff / gradiantSigma;
             double erosionPower;
             double possibleErosion = 1;
             double currentErosion = 0;
             double sedimentTaken = 0;
             if (surfaceArray[randx2][randy2].getSediment() > 0) {
-                erosionPower = heightDiff / (SharedParameters.BARWIDTH * SharedParameters.BARWIDTH);
+                erosionPower = proportionalFlow / (SharedParameters.BARWIDTH * SharedParameters.BARWIDTH);
+                //erosionPower = heightDiff / (SharedParameters.BARWIDTH * SharedParameters.BARWIDTH);
                 //calculate erosion of bar based on basic erosion (uniform or random)
                 if (SharedParameters.XPOINT < 0 && SharedParameters.YPOINT < 0) {
                     possibleErosion = (basicErosion * 2) * erosionPower;
