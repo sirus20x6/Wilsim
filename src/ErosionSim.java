@@ -84,6 +84,7 @@
  ***********************************************************************************************/
 
 import java.awt.*;
+import java.util.ArrayList;
 
 class ErosionSim implements Runnable {
     // variables for the surface object creation
@@ -151,6 +152,13 @@ class ErosionSim implements Runnable {
     private double basicErosion = 0;
     private int incrIndex = 0;
     private int incrDiffusionIndex = 0;
+    private ArrayList<Integer> lowerCellsX = new ArrayList<Integer>();
+    private ArrayList<Integer> lowerCellsY = new ArrayList<Integer>();
+    private ArrayList<Double> distance = new ArrayList<Double>();
+    private ArrayList<ArrayList<Integer>> twoDlowerCellsX = new ArrayList<ArrayList<Integer>>();
+    private ArrayList<ArrayList<Integer>> twoDlowerCellsY = new ArrayList<ArrayList<Integer>>();
+    private ArrayList<ArrayList<Double>> twoDDistance = new ArrayList<ArrayList<Double>>();
+
 
     /**
      * ********************************************************************************************
@@ -215,98 +223,116 @@ class ErosionSim implements Runnable {
                 }
                 continue;  // Recheck conditions
             }
-            for (int incrIndeX = -1; incrIndeX < 2; incrIndeX++) {
-                for (int incrIndeY = -1; incrIndeY < 2; incrIndeY++) {
 
-                    // Let's do something!
-                    if (SharedParameters.ITERATIONCOUNTER >= SharedParameters.TOTALYEARS && SharedParameters.reverseIterationCounter == 0) {
-                        // Time to stop -- all done
-                        //running = false;
-                        //SharedParameters.ROUTINESTARTED = false;
-                        SharedParameters.reverseIterationCounter = SharedParameters.ITERATIONCOUNTER;
-                        int reverseIntervalStep = intervalStep;
-                        SharedParameters.ITERATIONCOUNTER =
-                                intervalStep = 1;
-                        // continue;
-                    }
+            // Let's do something!
+            if (SharedParameters.ITERATIONCOUNTER >= SharedParameters.TOTALYEARS && SharedParameters.reverseIterationCounter == 0) {
+                // Time to stop -- all done
+                //running = false;
+                //SharedParameters.ROUTINESTARTED = false;
+                SharedParameters.reverseIterationCounter = SharedParameters.ITERATIONCOUNTER;
+                int reverseIntervalStep = intervalStep;
+                SharedParameters.ITERATIONCOUNTER =
+                        intervalStep = 1;
+                // continue;
+            }
 
-                    if (!(SharedParameters.ITERATIONCOUNTER >= 0)) {
-                        // Time to stop -- all done
-                        running = false;
-                        SharedParameters.ROUTINESTARTED = false;
-                        continue;
-                    }
+            if (!(SharedParameters.ITERATIONCOUNTER >= 0)) {
+                // Time to stop -- all done
+                running = false;
+                SharedParameters.ROUTINESTARTED = false;
+                continue;
+            }
 
-                    if (SharedParameters.reverseIterationCounter >= 200000) {
-                        // Time to stop -- all done
-                        running = false;
-                        SharedParameters.ROUTINESTARTED = false;
-                        continue;
-                    }
+            if (SharedParameters.reverseIterationCounter >= 200000) {
+                // Time to stop -- all done
+                running = false;
+                SharedParameters.ROUTINESTARTED = false;
+                continue;
+            }
 
-                    // To get it started
-                    if (firstTime) {
-                        SharedParameters.ITERATIONCOUNTER++;
-                        if (SharedParameters.reverseIterationCounter >= 100000) {
-                            SharedParameters.reverseIterationCounter++;
-                        }
-                        intervalStep++;
-                        // Call getStartingCell to get the first random bar
-                        getStartingCell();
-                    }
-                    // To re-calculate erosion values every time a change occurs
-                    if (SharedParameters.EROSIONNEEDED) {
-                        if (SharedParameters.reverseIterationCounter > 0) {
-                            //reverseGetErosionValue();
-                            //getErosionValue();
-                            SharedParameters.reverseIterationCounter++;
-                        } else {
-                            getErosionValue();
-                        }
-                        SharedParameters.EROSIONNEEDED = false;
-                    }
-
-                    // To apply tectonics if selected
-                    if (SharedParameters.APPLYTECTONICS && firstTime) {
-                        applyTectonics();
-                    }
-
-                    // To look for the eight target surrounding cells every time it
-                    // goes through this loop
-                    getSurroundingCells();
-
-                    //get erosion value according to applet parameters and apply diffusion
-                    if (firstTime && keepGoing) {
-                        applyDiffusion();
-                        firstTime = false;
-                    }
-
-                    //only apply these if getSurroundingCells was successful
-                    if (keepGoing) {
-                        //search for the lowest cell in the 3x3 grid
-                        if (SharedParameters.reverseIterationCounter > 0) {
-                          //  reverseSearchLowestCell();
-                          //  reverseCalculateErosion();
-                            //calculateErosion();
-                        } else {
-                            searchlowestCell();
-                            //calculateOldErosion();
-
-
-                            //*/
-
-                        }
-
-                        //apply erosion according to erodibility parameters
-
-
-                        //check capacity
-                        //checkcarryingCapacity();
-                        jRand = newX;
-                        iRand = newY;
-
-                    }
+            // To get it started
+            if (firstTime) {
+                SharedParameters.ITERATIONCOUNTER++;
+                if (SharedParameters.reverseIterationCounter >= 100000) {
+                    SharedParameters.reverseIterationCounter++;
                 }
+                intervalStep++;
+                // Call getStartingCell to get the first random bar
+                getStartingCell();
+            }
+            // To re-calculate erosion values every time a change occurs
+            if (SharedParameters.EROSIONNEEDED) {
+                if (SharedParameters.reverseIterationCounter > 0) {
+                    //reverseGetErosionValue();
+                    //getErosionValue();
+                    SharedParameters.reverseIterationCounter++;
+                } else {
+                    getErosionValue();
+                }
+                SharedParameters.EROSIONNEEDED = false;
+            }
+
+            // To apply tectonics if selected
+            if (SharedParameters.APPLYTECTONICS && firstTime) {
+                applyTectonics();
+            }
+
+            // To look for the eight target surrounding cells every time it
+            // goes through this loop
+            getSurroundingCells();
+
+            //get erosion value according to applet parameters and apply diffusion
+            if (firstTime && keepGoing) {
+                applyDiffusion();
+                firstTime = false;
+            }
+
+            //only apply these if getSurroundingCells was successful
+            if (keepGoing) {
+                //search for the lowest cell in the 3x3 grid
+                if (SharedParameters.reverseIterationCounter > 0) {
+                    //reverseSearchLowestCell();
+                    //reverseCalculateErosion();
+                    //calculateErosion();
+                } else {
+                    searchlowestCell();
+while(twoDlowerCellsX.size() - 1 > 0) {
+    int temp = twoDlowerCellsX.get(twoDlowerCellsX.size() - 1).size() - 1;
+    for (int arrayListCounter = twoDlowerCellsX.get(twoDlowerCellsX.size() - 1).size() - 1; arrayListCounter > 0; arrayListCounter--) {
+        calculateErosion(
+                twoDlowerCellsX.get(twoDlowerCellsX.size() - 1).get(arrayListCounter),
+                twoDlowerCellsY.get(twoDlowerCellsY.size() - 1).get(arrayListCounter),
+                twoDDistance.get(twoDDistance.size() - 1).get(arrayListCounter));
+    }
+    jRand = twoDlowerCellsX.get(twoDlowerCellsX.size() - 1).get(temp);
+    iRand = twoDlowerCellsY.get(twoDlowerCellsY.size() - 1).get(temp);
+    getSurroundingCells();
+    twoDlowerCellsX.get(twoDlowerCellsX.size() - 1).remove(temp);
+    twoDlowerCellsY.get(twoDlowerCellsY.size() - 1).remove(temp);
+    twoDDistance.get(twoDDistance.size() - 1).remove(temp);
+}
+                    //set lowest bar as target
+ //                   jRand = newX;
+ //                   iRand = newY;
+                    //calculateErosion();
+                }
+
+                //apply erosion according to erodibility parameters
+
+
+                //check capacity
+                //checkcarryingCapacity();
+
+                //always calculate for intervals - it doesn't hurt
+                if (intervalStep == (SharedParameters.ENDTIME / nIntervals) || initialize) {
+                    saveInterval();
+                    intervalStep = 1;
+                    initialize = false;
+                    calculateHypsometric();
+                    intervalCounter++;
+                }
+
+
             }
 
             // to make sure colors are set right for the snapshots as well as for the animation
@@ -621,20 +647,18 @@ class ErosionSim implements Runnable {
         }//end for break point at y
     }//end of applyTectonics
 
+
     /**
      * ********************************************************************************************
      * this function gets the cells surrounding the randomly selected one
      * *********************************************************************************************
      */
-    private final double[] CoordHieghtArray = new double[9];
-    private final double[] distance = new double[9];
-    private final double[] gradiant = new double[9];
+    private ArrayList<Double> CoordHieghtAL = new ArrayList<Double>();
     double squareRootTwo = Math.sqrt(2.00);
-    int gradiantCounter = 0;
     double gradiantSigma = 0;
     private void getSurroundingCells() {
 
-        SharedParameters.BARSPROCESSED += 1;
+
         keepGoing = true;
         cleanup();
 
@@ -655,22 +679,12 @@ class ErosionSim implements Runnable {
                     XCOORDARRAY[incrIndex] = jRand - 1;
                     YCOORDARRAY[incrIndex] = iRand - 1;
                     if(surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight() < currentHeight) {
-                        CoordHieghtArray[incrIndex] = surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight();
-                        distance[incrIndex] = squareRootTwo;
-                        gradiant[incrIndex] = ((surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight()
-                                - currentHeight) / distance[incrIndex]);
+                        CoordHieghtAL.add(surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight());
+                        lowerCellsX.add(jRand - 1);
+                        lowerCellsY.add(iRand - 1);
+                        distance.add(squareRootTwo);
                     }
                     incrIndex++;
-                    calculateOldErosion(jRand -1,iRand -1, distance[incrIndex]);
-                    //always calculate for intervals - it doesn't hurt
-                    if (intervalStep == (SharedParameters.ENDTIME / nIntervals) || initialize) {
-                        saveInterval();
-                        intervalStep = 1;
-                        initialize = false;
-                        calculateHypsometric();
-                        intervalCounter++;
-                    }
-                  //  applyDiffusion(jRand -1,iRand -1);
                 }
                 if (jRand - 1 >= 0 && jRand - 1 < SharedParameters.ROWS && iRand >= 0 && iRand < SharedParameters.COLUMNS) {
                     XCOORDARRAY[incrIndex] = jRand - 1;
@@ -678,50 +692,24 @@ class ErosionSim implements Runnable {
                     XCOORDDIFFUSIONARRAY[incrDiffusionIndex] = jRand - 1;
                     YCOORDDIFFUSIONARRAY[incrDiffusionIndex] = iRand;
                     if(surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight() < currentHeight) {
-                        CoordHieghtArray[incrIndex] = surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight();
-                        distance[incrIndex] = 1;
-                        gradiant[incrIndex] = (surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight()
-                                - currentHeight) / distance[incrIndex];
+                        CoordHieghtAL.add(surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight());
+                        lowerCellsX.add(jRand - 1);
+                        lowerCellsY.add(iRand);
+                        distance.add((double) 1);
                     }
                     incrIndex++;
                     incrDiffusionIndex++;
-                    calculateOldErosion(jRand-1,iRand);
-
-                    //always calculate for intervals - it doesn't hurt
-                    if (intervalStep == (SharedParameters.ENDTIME / nIntervals) || initialize) {
-                        saveInterval();
-                        intervalStep = 1;
-                        initialize = false;
-                        calculateHypsometric();
-                        intervalCounter++;
-                    }
-
-                    if (firstTime && keepGoing) {
-                        // applyDiffusion(jRand-1,iRand);
-                        firstTime = false;
-                    }
                 }
                 if (jRand - 1 >= 0 && jRand - 1 < SharedParameters.ROWS && iRand + 1 >= 0 && iRand + 1 < SharedParameters.COLUMNS) {
                     XCOORDARRAY[incrIndex] = jRand - 1;
                     YCOORDARRAY[incrIndex] = iRand + 1;
                     if(surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight() < currentHeight) {
-                        CoordHieghtArray[incrIndex] = surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight();
-                        distance[incrIndex] = squareRootTwo;
-                        gradiant[incrIndex] = (surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight()
-                                - currentHeight) / distance[incrIndex];
+                        CoordHieghtAL.add(surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight());
+                        lowerCellsX.add(jRand - 1);
+                        lowerCellsY.add(iRand + 1);
+                        distance.add(squareRootTwo);
                     }
                     incrIndex++;
-                    calculateOldErosion(jRand-1,iRand +1);
-
-                    //always calculate for intervals - it doesn't hurt
-                    if (intervalStep == (SharedParameters.ENDTIME / nIntervals) || initialize) {
-                        saveInterval();
-                        intervalStep = 1;
-                        initialize = false;
-                        calculateHypsometric();
-                        intervalCounter++;
-                    }
-                   // applyDiffusion(jRand-1,iRand +1);
                 }
                 if (jRand >= 0 && jRand < SharedParameters.ROWS && iRand - 1 >= 0 && iRand - 1 < SharedParameters.COLUMNS) {
                     XCOORDARRAY[incrIndex] = jRand;
@@ -729,28 +717,13 @@ class ErosionSim implements Runnable {
                     XCOORDDIFFUSIONARRAY[incrDiffusionIndex] = jRand;
                     YCOORDDIFFUSIONARRAY[incrDiffusionIndex] = iRand - 1;
                     if(surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight() < currentHeight) {
-                        CoordHieghtArray[incrIndex] = surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight();
-                        distance[incrIndex] = 1;
-                        gradiant[incrIndex] = (surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight()
-                                - currentHeight) / distance[incrIndex];
+                        CoordHieghtAL.add(surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight());
+                        lowerCellsX.add(jRand);
+                        lowerCellsY.add(iRand - 1);
+                        distance.add((double) 1);
                     }
                     incrIndex++;
                     incrDiffusionIndex++;
-                    calculateOldErosion(jRand,iRand -1);
-
-                    //always calculate for intervals - it doesn't hurt
-                    if (intervalStep == (SharedParameters.ENDTIME / nIntervals) || initialize) {
-                        saveInterval();
-                        intervalStep = 1;
-                        initialize = false;
-                        calculateHypsometric();
-                        intervalCounter++;
-                    }
-
-                    if (firstTime && keepGoing) {
-                        applyDiffusion(jRand, iRand -1);
-                        firstTime = false;
-                    }
                 }
                 if (jRand >= 0 && jRand < SharedParameters.ROWS && iRand >= 0 && iRand < SharedParameters.COLUMNS) {
                     XCOORDARRAY[incrIndex] = jRand;
@@ -763,37 +736,22 @@ class ErosionSim implements Runnable {
                     XCOORDDIFFUSIONARRAY[incrDiffusionIndex] = jRand;
                     YCOORDDIFFUSIONARRAY[incrDiffusionIndex] = iRand + 1;
                     if(surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight() < currentHeight) {
-                        CoordHieghtArray[incrIndex] = surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight();
-                        distance[incrIndex] = 1;
-                        gradiant[incrIndex] = (surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight()
-                                - currentHeight) / distance[incrIndex];
+                        CoordHieghtAL.add(surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight());
+                        lowerCellsX.add(jRand);
+                        lowerCellsY.add(iRand + 1);
+                        distance.add((double) 1);
                     }
                     incrIndex++;
                     incrDiffusionIndex++;
-                    calculateOldErosion(jRand+1,iRand -1);
-
-                    //always calculate for intervals - it doesn't hurt
-                    if (intervalStep == (SharedParameters.ENDTIME / nIntervals) || initialize) {
-                        saveInterval();
-                        intervalStep = 1;
-                        initialize = false;
-                        calculateHypsometric();
-                        intervalCounter++;
-                    }
-                   //
-                    if (firstTime && keepGoing) {
-                        applyDiffusion(jRand+1, iRand -1);
-                        firstTime = false;
-                    }
                 }
                 if (jRand + 1 >= 0 && jRand + 1 < SharedParameters.ROWS && iRand - 1 >= 0 && iRand - 1 < SharedParameters.COLUMNS) {
                     XCOORDARRAY[incrIndex] = jRand + 1;
                     YCOORDARRAY[incrIndex] = iRand - 1;
                     if(surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight() < currentHeight) {
-                        CoordHieghtArray[incrIndex] = surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight();
-                        distance[incrIndex] = squareRootTwo;
-                        gradiant[incrIndex] = (surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight()
-                                - currentHeight) / distance[incrIndex];
+                        CoordHieghtAL.add(surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight());
+                        lowerCellsX.add(jRand + 1);
+                        lowerCellsY.add(iRand - 1);
+                        distance.add(squareRootTwo);
                     }
                     incrIndex++;
                 }
@@ -803,58 +761,42 @@ class ErosionSim implements Runnable {
                     XCOORDDIFFUSIONARRAY[incrDiffusionIndex] = jRand + 1;
                     YCOORDDIFFUSIONARRAY[incrDiffusionIndex] = iRand;
                     if(surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight() < currentHeight) {
-                        CoordHieghtArray[incrIndex] = surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight();
-                        distance[incrIndex] = 1;
-                        gradiant[incrIndex] = (surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight()
-                                - currentHeight) / distance[incrIndex];
+                        CoordHieghtAL.add(surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight());
+                        lowerCellsX.add(jRand + 1);
+                        lowerCellsY.add(iRand);
+                        distance.add((double) 1);
                     }
                     incrIndex++;
                     incrDiffusionIndex++;
-                    calculateOldErosion(jRand+1,iRand);
-
-                    //always calculate for intervals - it doesn't hurt
-                    if (intervalStep == (SharedParameters.ENDTIME / nIntervals) || initialize) {
-                        saveInterval();
-                        intervalStep = 1;
-                        initialize = false;
-                        calculateHypsometric();
-                        intervalCounter++;
-                    }
-                    if (firstTime && keepGoing) {
-                        applyDiffusion(jRand+1, iRand);
-                        firstTime = false;
-                    }
                 }
                 if (jRand + 1 >= 0 && jRand + 1 < SharedParameters.ROWS && iRand + 1 >= 0 && iRand + 1 < SharedParameters.COLUMNS) {
                     XCOORDARRAY[incrIndex] = jRand + 1;
                     YCOORDARRAY[incrIndex] = iRand + 1;
                     if(surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight() < currentHeight) {
-                        CoordHieghtArray[incrIndex] = surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight();
-                        distance[incrIndex] = squareRootTwo;
-                        gradiant[incrIndex] = (surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight()
-                                - currentHeight) / distance[incrIndex];
+                        CoordHieghtAL.add(surfaceArray[XCOORDARRAY[incrIndex]][YCOORDARRAY[incrIndex]].getsurfacefinalHeight());
+                        lowerCellsX.add(jRand + 1);
+                        lowerCellsY.add(iRand + 1);
+                        distance.add(squareRootTwo);
                     }
-                    incrIndex++;
-                    //always calculate for intervals - it doesn't hurt
-                    if (intervalStep == (SharedParameters.ENDTIME / nIntervals) || initialize) {
-                        saveInterval();
-                        intervalStep = 1;
-                        initialize = false;
-                        calculateHypsometric();
-                        intervalCounter++;
-                    }
-                   // applyDiffusion(jRand+1, iRand+1);
-                }//end of getting 3x3 grid in vectors
+                    incrIndex++;                }//end of getting 3x3 grid in vectors
 
-                for (int x =0; x < incrIndex; x++){
-                    gradiantSigma += CoordHieghtArray[x];
+                while (CoordHieghtAL.size() > 0){
+                    gradiantSigma += CoordHieghtAL.get(CoordHieghtAL.size() - 1);
+                    CoordHieghtAL.remove(CoordHieghtAL.size() - 1);
                 }
+                SharedParameters.BARSPROCESSED += lowerCellsX.size();
+
+                twoDlowerCellsX.add(new ArrayList<Integer>(lowerCellsX));
+                twoDlowerCellsY.add(new ArrayList<Integer>(lowerCellsY));
+                twoDDistance.add(new ArrayList<Double>(distance));
+                lowerCellsX.clear();
+                lowerCellsY.clear();
+                //distance.clear();
 
             } catch (ArrayIndexOutOfBoundsException aioobe) {
             }
         }//end of iteration and thread checking
     }//end of getsurroundingCells
-
     /**
      * ********************************************************************************************
      * apply diffusion when first precipiton falls
@@ -862,6 +804,8 @@ class ErosionSim implements Runnable {
      */
     void applyDiffusion() {
         //get target coordinates in local variables
+        int randrow1 = jRand;
+        int randcolumn1 = iRand;
         int getsedimentx;
         int getsedimenty;
         double sedimentTaken = 0;
@@ -875,14 +819,14 @@ class ErosionSim implements Runnable {
             double currentDiffusion = 0;
             if (diffusesedImentX > -1 && diffusesedImentY > -1) {
                 //compare it to with target cell - decide which cells dump and get sediment
-                if (surfaceArray[tempx][tempy].getsurfacefinalHeight() > surfaceArray[jRand][iRand].getsurfacefinalHeight()) {
+                if (surfaceArray[tempx][tempy].getsurfacefinalHeight() > surfaceArray[randrow1][randcolumn1].getsurfacefinalHeight()) {
                     diffusesedImentX = tempx;
                     diffusesedImentY = tempy;
-                    getsedimentx = jRand;
-                    getsedimenty = iRand;
+                    getsedimentx = randrow1;
+                    getsedimenty = randcolumn1;
                 } else {
-                    diffusesedImentX = jRand;
-                    diffusesedImentY = iRand;
+                    diffusesedImentX = randrow1;
+                    diffusesedImentY = randcolumn1;
                     getsedimentx = tempx;
                     getsedimenty = tempy;
                 }
@@ -890,23 +834,23 @@ class ErosionSim implements Runnable {
                 double heightDifference = surfaceArray[diffusesedImentX][diffusesedImentY].getsurfacefinalHeight() - surfaceArray[getsedimentx][getsedimenty].getsurfacefinalHeight();
                 //if neighbor has sediment
                 if (surfaceArray[diffusesedImentX][diffusesedImentY].getSediment() > 0) {
-                    diffusionPower = (heightDifference / gradiantSigma) / (SharedParameters.BARWIDTH * SharedParameters.BARWIDTH);
+                    diffusionPower = heightDifference / (SharedParameters.BARWIDTH * SharedParameters.BARWIDTH);
                     //check for basic erosion rate
                     if (SharedParameters.XPOINT < 0 && SharedParameters.YPOINT < 0) {
                         possibleDiffusion = basicErosion * 2 * diffusionPower;
                     }
                     //check for erosion rate with break at x
-                    if (SharedParameters.XPOINT >= 0 && randXLeft >= 0 && iRand <= SharedParameters.XPOINT) {
+                    if (SharedParameters.XPOINT >= 0 && randXLeft >= 0 && randcolumn1 <= SharedParameters.XPOINT) {
                         possibleDiffusion = randXLeft * 2 * diffusionPower;
                     }
-                    if (SharedParameters.XPOINT >= 0 && randXRight >= 0 && iRand > SharedParameters.XPOINT) {
+                    if (SharedParameters.XPOINT >= 0 && randXRight >= 0 && randcolumn1 > SharedParameters.XPOINT) {
                         possibleDiffusion = randXRight * 2 * diffusionPower;
                     }
                     //check for erosion rate with break at y
-                    if (SharedParameters.YPOINT >= 0 && randYBottom >= 0 && jRand <= SharedParameters.YPOINT) {
+                    if (SharedParameters.YPOINT >= 0 && randYBottom >= 0 && randrow1 <= SharedParameters.YPOINT) {
                         possibleDiffusion = randYBottom * 2 * diffusionPower;
                     }
-                    if (SharedParameters.YPOINT >= 0 && randYTop >= 0 && jRand > SharedParameters.YPOINT) {
+                    if (SharedParameters.YPOINT >= 0 && randYTop >= 0 && randrow1 > SharedParameters.YPOINT) {
                         possibleDiffusion = randYTop * 2 * diffusionPower;
                     }
                     //if sediment is not enough
@@ -927,24 +871,24 @@ class ErosionSim implements Runnable {
                         possibleDiffusion = basicErosion * diffusionPower;
                     }
                     //check for erosion rate with break at x
-                    if (SharedParameters.XPOINT >= 0 && randXLeft >= 0 && iRand <= SharedParameters.XPOINT) {
+                    if (SharedParameters.XPOINT >= 0 && randXLeft >= 0 && randcolumn1 <= SharedParameters.XPOINT) {
                         possibleDiffusion = randXLeft * diffusionPower;
                     }
-                    if (SharedParameters.XPOINT >= 0 && randXRight >= 0 && iRand > SharedParameters.XPOINT) {
+                    if (SharedParameters.XPOINT >= 0 && randXRight >= 0 && randcolumn1 > SharedParameters.XPOINT) {
                         possibleDiffusion = randXRight * diffusionPower;
                     }
                     //check for erosion rate with break at y
-                    if (SharedParameters.YPOINT >= 0 && randYBottom >= 0 && jRand <= SharedParameters.YPOINT) {
+                    if (SharedParameters.YPOINT >= 0 && randYBottom >= 0 && randrow1 <= SharedParameters.YPOINT) {
                         possibleDiffusion = randYBottom * diffusionPower;
                     }
-                    if (SharedParameters.YPOINT >= 0 && randYTop >= 0 && jRand > SharedParameters.YPOINT) {
+                    if (SharedParameters.YPOINT >= 0 && randYTop >= 0 && randrow1 > SharedParameters.YPOINT) {
                         possibleDiffusion = randYTop * diffusionPower;
                     }
                     currentDiffusion = currentDiffusion + possibleDiffusion;
                 }
                 //only for front row - apply only ten percent
                 surfaceArray[diffusesedImentX][diffusesedImentY].setErosion(currentDiffusion - sedimentTaken);
-                if (jRand == 0) {
+                if (randrow1 == 0) {
                     currentDiffusion = currentDiffusion * 0.10;
                 }
                 surfaceArray[getsedimentx][getsedimenty].setSediment(currentDiffusion);
@@ -956,8 +900,16 @@ class ErosionSim implements Runnable {
         }
     }//end of applyDiffusion
 
-    void applyDiffusion(int myX, int myY) {
+
+    /**
+     * ********************************************************************************************
+     * apply diffusion when first precipiton falls
+     * *********************************************************************************************
+     */
+    void reverseApplyDiffusion() {
         //get target coordinates in local variables
+        int randrow1 = jRand;
+        int randcolumn1 = iRand;
         int getsedimentx;
         int getsedimenty;
         double sedimentTaken = 0;
@@ -971,14 +923,14 @@ class ErosionSim implements Runnable {
             double currentDiffusion = 0;
             if (diffusesedImentX > -1 && diffusesedImentY > -1) {
                 //compare it to with target cell - decide which cells dump and get sediment
-                if (surfaceArray[tempx][tempy].getsurfacefinalHeight() > surfaceArray[myX][myY].getsurfacefinalHeight()) {
+                if (surfaceArray[tempx][tempy].getsurfacefinalHeight() < surfaceArray[randrow1][randcolumn1].getsurfacefinalHeight()) { //flip
                     diffusesedImentX = tempx;
                     diffusesedImentY = tempy;
-                    getsedimentx = myX;
-                    getsedimenty = myY;
+                    getsedimentx = randrow1;
+                    getsedimenty = randcolumn1;
                 } else {
-                    diffusesedImentX = myX;
-                    diffusesedImentY = myY;
+                    diffusesedImentX = randrow1;
+                    diffusesedImentY = randcolumn1;
                     getsedimentx = tempx;
                     getsedimenty = tempy;
                 }
@@ -986,23 +938,23 @@ class ErosionSim implements Runnable {
                 double heightDifference = surfaceArray[diffusesedImentX][diffusesedImentY].getsurfacefinalHeight() - surfaceArray[getsedimentx][getsedimenty].getsurfacefinalHeight();
                 //if neighbor has sediment
                 if (surfaceArray[diffusesedImentX][diffusesedImentY].getSediment() > 0) {
-                    diffusionPower = (heightDifference / gradiantSigma) / (SharedParameters.BARWIDTH * SharedParameters.BARWIDTH);
+                    diffusionPower = heightDifference / (SharedParameters.BARWIDTH * SharedParameters.BARWIDTH);
                     //check for basic erosion rate
                     if (SharedParameters.XPOINT < 0 && SharedParameters.YPOINT < 0) {
                         possibleDiffusion = basicErosion * 2 * diffusionPower;
                     }
                     //check for erosion rate with break at x
-                    if (SharedParameters.XPOINT >= 0 && randXLeft >= 0 && myY <= SharedParameters.XPOINT) {
+                    if (SharedParameters.XPOINT >= 0 && randXLeft >= 0 && randcolumn1 <= SharedParameters.XPOINT) {
                         possibleDiffusion = randXLeft * 2 * diffusionPower;
                     }
-                    if (SharedParameters.XPOINT >= 0 && randXRight >= 0 && myY > SharedParameters.XPOINT) {
+                    if (SharedParameters.XPOINT >= 0 && randXRight >= 0 && randcolumn1 > SharedParameters.XPOINT) {
                         possibleDiffusion = randXRight * 2 * diffusionPower;
                     }
                     //check for erosion rate with break at y
-                    if (SharedParameters.YPOINT >= 0 && randYBottom >= 0 && myX <= SharedParameters.YPOINT) {
+                    if (SharedParameters.YPOINT >= 0 && randYBottom >= 0 && randrow1 <= SharedParameters.YPOINT) {
                         possibleDiffusion = randYBottom * 2 * diffusionPower;
                     }
-                    if (SharedParameters.YPOINT >= 0 && randYTop >= 0 && myX > SharedParameters.YPOINT) {
+                    if (SharedParameters.YPOINT >= 0 && randYTop >= 0 && randrow1 > SharedParameters.YPOINT) {
                         possibleDiffusion = randYTop * 2 * diffusionPower;
                     }
                     //if sediment is not enough
@@ -1017,30 +969,30 @@ class ErosionSim implements Runnable {
                 }
                 //if neighbor does not have sediment
                 if ((surfaceArray[diffusesedImentX][diffusesedImentY].getSediment() == 0) && (currentDiffusion != possibleDiffusion)) {
-                    diffusionPower = ((heightDifference / gradiantSigma) - currentDiffusion) / (SharedParameters.BARWIDTH * SharedParameters.BARWIDTH);
+                    diffusionPower = (heightDifference - currentDiffusion) / (SharedParameters.BARWIDTH * SharedParameters.BARWIDTH);
                     //check for basic erosion rate
                     if (SharedParameters.XPOINT < 0 && SharedParameters.YPOINT < 0) {
                         possibleDiffusion = basicErosion * diffusionPower;
                     }
                     //check for erosion rate with break at x
-                    if (SharedParameters.XPOINT >= 0 && randXLeft >= 0 && myY <= SharedParameters.XPOINT) {
+                    if (SharedParameters.XPOINT >= 0 && randXLeft >= 0 && randcolumn1 <= SharedParameters.XPOINT) {
                         possibleDiffusion = randXLeft * diffusionPower;
                     }
-                    if (SharedParameters.XPOINT >= 0 && randXRight >= 0 && myY > SharedParameters.XPOINT) {
+                    if (SharedParameters.XPOINT >= 0 && randXRight >= 0 && randcolumn1 > SharedParameters.XPOINT) {
                         possibleDiffusion = randXRight * diffusionPower;
                     }
                     //check for erosion rate with break at y
-                    if (SharedParameters.YPOINT >= 0 && randYBottom >= 0 && myX <= SharedParameters.YPOINT) {
+                    if (SharedParameters.YPOINT >= 0 && randYBottom >= 0 && randrow1 <= SharedParameters.YPOINT) {
                         possibleDiffusion = randYBottom * diffusionPower;
                     }
-                    if (SharedParameters.YPOINT >= 0 && randYTop >= 0 && myX > SharedParameters.YPOINT) {
+                    if (SharedParameters.YPOINT >= 0 && randYTop >= 0 && randrow1 > SharedParameters.YPOINT) {
                         possibleDiffusion = randYTop * diffusionPower;
                     }
                     currentDiffusion = currentDiffusion + possibleDiffusion;
                 }
                 //only for front row - apply only ten percent
                 surfaceArray[diffusesedImentX][diffusesedImentY].setErosion(currentDiffusion - sedimentTaken);
-                if (jRand == 0) {
+                if (randrow1 == 0) {
                     currentDiffusion = currentDiffusion * 0.10;
                 }
                 surfaceArray[getsedimentx][getsedimenty].setSediment(currentDiffusion);
@@ -1053,12 +1005,12 @@ class ErosionSim implements Runnable {
     }//end of applyDiffusion
 
 
-
     /**
      * ********************************************************************************************
      * search for lowest cell in 3x3 grid
      * *********************************************************************************************
      */
+
     void searchlowestCell() {
         //to do certain number of iterations
 
@@ -1078,6 +1030,7 @@ class ErosionSim implements Runnable {
 
             //if next bar is lower than current, change value of index
             if (bar2height < bar1height) {
+                //gradiant.add(currentMinHeight);
                 currentMinHeight = nextHeight;
             }
         }//end of for loop
@@ -1105,308 +1058,173 @@ class ErosionSim implements Runnable {
             firstTime = true;
             keepGoing = false;
         }//end if anybars
-    }//end of searchlowestCell()
-
-
-
-    void reverseSearchLowestCell() {
-        //to do certain number of iterations
-        int currentMinHeight = 0;
-        int xcoord1, ycoord1, xcoord2, ycoord2;
-
-        //find lowest height in array
-        int nextHeight;
-        for (nextHeight = currentMinHeight + 1; nextHeight < incrIndex; nextHeight++) {
-            double bar2height, bar1height;
-            xcoord2 = XCOORDARRAY[nextHeight];
-            ycoord2 = YCOORDARRAY[nextHeight];
-            xcoord1 = XCOORDARRAY[currentMinHeight];
-            ycoord1 = YCOORDARRAY[currentMinHeight];
-            bar2height = surfaceArray[xcoord2][ycoord2].getsurfacefinalHeight();
-            bar1height = surfaceArray[xcoord1][ycoord1].getsurfacefinalHeight();
-
-            //if next bar is lower than current, change value of index
-            if (bar2height > bar1height) {     /// flipped
-                currentMinHeight = nextHeight;
-            }
-        }//end of for loop
-
-        //this is to check if there is any lowest cell
-        if (XCOORDARRAY[currentMinHeight] >= 0 && YCOORDARRAY[currentMinHeight] >= 0) {
-            newX = XCOORDARRAY[currentMinHeight];
-            newY = YCOORDARRAY[currentMinHeight];
-            //this is to check if the lowest now was the lowest before in order to avoid an endless loop
-            if (newX == SharedParameters.OLDX && newY == SharedParameters.OLDY) {
-                cleanup();
-                firstTime = true;
-                keepGoing = false;
-                return;
-            } else {
-                SharedParameters.OLDX = jRand;
-                SharedParameters.OLDY = iRand;
-            }
-            //this is to check if the lowest now and lowest before are the same height
-            if (surfaceArray[newX][newY].getsurfacefinalHeight() == surfaceArray[jRand][iRand].getsurfacefinalHeight()) {
-                firstTime = true;
-                keepGoing = false;
-            }
-        } else {
+        if (lowerCellsX.size() == 0){
+            cleanup();
             firstTime = true;
             keepGoing = false;
-        }//end if anybars
+        }
     }//end of searchlowestCell()
 
-    /**
-     * ********************************************************************************************
-     * apply the erosion according to erodibility parameters
-     * *********************************************************************************************
-     */
-    void calculateErosion(int incrIndeX, int incrIndeY) {
-        //to do certain number of iterations
-        if (keepGoing) {
-            double proportionalFlow;
-            //get the heights of both bars and calculate height difference
-            double heightDiff;
-            double erosionPower;
-            double possibleErosion;
-            double currentErosion;
-            double sedimentTaken;
-
-            if (incrIndeX == 0 && incrIndeY == 0) {
-            } else if (
-                    (jRand + incrIndeX) >= 0 && (jRand + incrIndeX) < SharedParameters.ROWS &&
-                            (iRand + incrIndeY) >= 0 && (iRand + incrIndeY) < SharedParameters.COLUMNS) {
-                if((surfaceArray[(jRand + incrIndeX)][(iRand + incrIndeY)].getsurfacefinalHeight() != 0)){
-
-//                        newX = XCOORDARRAY[jRand + incrIndeX];
-//                        newY = YCOORDARRAY[iRand + incrIndeY];
-//                        SharedParameters.OLDX = jRand;
-//                        SharedParameters.OLDY = iRand;
-                SharedParameters.HEIGHTDIFFERENCE = heightDiff =
-                        surfaceArray[jRand][iRand].getsurfacefinalHeight() - surfaceArray[(jRand + incrIndeX)][(iRand + incrIndeY)].getsurfacefinalHeight();
-               // proportionalFlow = heightDiff / gradiantSigma;
-                possibleErosion = 1;
-                currentErosion = 0;
-                sedimentTaken = 0;
-                if (surfaceArray[jRand][iRand].getSediment() > 0) {
-                    erosionPower = ((heightDiff ) / (SharedParameters.BARWIDTH * SharedParameters.BARWIDTH));
-                    //erosionPower = heightDiff / (SharedParameters.BARWIDTH * SharedParameters.BARWIDTH);
-                    //calculate erosion of bar based on basic erosion (uniform or random)
-                    if (SharedParameters.XPOINT < 0 && SharedParameters.YPOINT < 0) {
-                        possibleErosion = (basicErosion * 2) * erosionPower;
-                    }
-                    //check y break point
-                    if (SharedParameters.YPOINT > -1 && SharedParameters.YPOINT <= SharedParameters.ROWS && jRand > SharedParameters.YPOINT) {
-                        possibleErosion = (randYTop * 2) * erosionPower;
-                    }
-                    if (SharedParameters.YPOINT > -1 && SharedParameters.YPOINT <= SharedParameters.ROWS && jRand <= SharedParameters.YPOINT) {
-                        possibleErosion = (randYBottom * 2) * erosionPower;
-                    }
-                    //check x break point
-                    if (SharedParameters.XPOINT > -1 && SharedParameters.XPOINT <= SharedParameters.COLUMNS && iRand > SharedParameters.XPOINT) {
-                        possibleErosion = (randXRight * 2) * erosionPower;
-                    }
-                    if (SharedParameters.XPOINT > -1 && SharedParameters.XPOINT <= SharedParameters.COLUMNS && iRand <= SharedParameters.XPOINT) {
-                        possibleErosion = (randXLeft * 2) * erosionPower;
-                    }
-                    if (possibleErosion > surfaceArray[jRand][iRand].getSediment()) {
-                        currentErosion = surfaceArray[jRand][iRand].getSediment();
-                        possibleErosion -= currentErosion;
-                        sedimentTaken = surfaceArray[jRand][iRand].getSediment();
-                        surfaceArray[jRand][iRand].setSediment(-sedimentTaken);
-                    } else {
-                        currentErosion = possibleErosion;
-                    }
-                }
-                if ((surfaceArray[jRand][iRand].getSediment() == 0) && (currentErosion != possibleErosion)) {
-                    erosionPower = (heightDiff - currentErosion) / (SharedParameters.BARWIDTH * SharedParameters.BARWIDTH);
-                    //calculate erosion of bar based on basic erosion (uniform or random)
-                    if (SharedParameters.XPOINT < 0 && SharedParameters.YPOINT < 0) {
-                        possibleErosion = basicErosion * erosionPower;
-                    }
-                    //check y break point
-                    if (SharedParameters.YPOINT > -1 && SharedParameters.YPOINT <= SharedParameters.ROWS && jRand > SharedParameters.YPOINT) {
-                        possibleErosion = randYTop * erosionPower;
-                    }
-                    if (SharedParameters.YPOINT > -1 && SharedParameters.YPOINT <= SharedParameters.ROWS && jRand <= SharedParameters.YPOINT) {
-                        possibleErosion = randYBottom * erosionPower;
-                    }
-                    //check x break point
-                    if (SharedParameters.XPOINT > -1 && SharedParameters.XPOINT <= SharedParameters.COLUMNS && iRand > SharedParameters.XPOINT) {
-                        possibleErosion = randXRight * erosionPower;
-                    }
-                    if (SharedParameters.XPOINT > -1 && SharedParameters.XPOINT <= SharedParameters.COLUMNS && iRand <= SharedParameters.XPOINT) {
-                        possibleErosion = randXLeft * erosionPower;
-                    }
-                    currentErosion = currentErosion + possibleErosion;
-                }
-                //only for front row
-                surfaceArray[jRand][iRand].setErosion(currentErosion - sedimentTaken);
-                if (newX == 0) {
-                    currentErosion = currentErosion * 0.10;
-                }
-                surfaceArray[(jRand + incrIndeX)][(iRand + incrIndeY)].setSediment(currentErosion);
-                surfaceArray[jRand][iRand].setfinalHeight();
-                surfaceArray[(jRand + incrIndeX)][(iRand + incrIndeY)].setfinalHeight();
-            }
-        }
-
-        }
-    }//end of applyErosion
-
-    void calculateOldErosion(int myX, int myY, double distance) {
-        //to do certain number of iterations
-        if (keepGoing) {
-            //get the heights of both bars and calculate height difference
-            double heightDiff;
-            SharedParameters.HEIGHTDIFFERENCE = heightDiff = surfaceArray[jRand][iRand].getsurfacefinalHeight() -
-                    surfaceArray[myX][myY].getsurfacefinalHeight();
-            double erosionPower;
-            double possibleErosion = 1;
-            double currentErosion = 0;
-            double sedimentTaken = 0;
-            if (surfaceArray[jRand][iRand].getSediment() > 0) {
-                //erosionPower = heightDiff / (SharedParameters.BARWIDTH * SharedParameters.BARWIDTH);
-                erosionPower = (heightDiff / distance) / gradiantSigma / (SharedParameters.BARWIDTH * SharedParameters.BARWIDTH);
-
-                //calculate erosion of bar based on basic erosion (uniform or random)
-                if (SharedParameters.XPOINT < 0 && SharedParameters.YPOINT < 0) {
-                    possibleErosion = (basicErosion * 2) * erosionPower;
-                }
-                //check y break point
-                if (SharedParameters.YPOINT > -1 && SharedParameters.YPOINT <= SharedParameters.ROWS && jRand > SharedParameters.YPOINT) {
-                    possibleErosion = (randYTop * 2) * erosionPower;
-                }
-                if (SharedParameters.YPOINT > -1 && SharedParameters.YPOINT <= SharedParameters.ROWS && jRand <= SharedParameters.YPOINT) {
-                    possibleErosion = (randYBottom * 2) * erosionPower;
-                }
-                //check x break point
-                if (SharedParameters.XPOINT > -1 && SharedParameters.XPOINT <= SharedParameters.COLUMNS && iRand > SharedParameters.XPOINT) {
-                    possibleErosion = (randXRight * 2) * erosionPower;
-                }
-                if (SharedParameters.XPOINT > -1 && SharedParameters.XPOINT <= SharedParameters.COLUMNS && iRand <= SharedParameters.XPOINT) {
-                    possibleErosion = (randXLeft * 2) * erosionPower;
-                }
-                if (possibleErosion > surfaceArray[jRand][iRand].getSediment()) {
-                    currentErosion = surfaceArray[jRand][iRand].getSediment();
-                    possibleErosion -= currentErosion;
-                    sedimentTaken = surfaceArray[jRand][iRand].getSediment();
-                    surfaceArray[jRand][iRand].setSediment(-sedimentTaken);
-                } else {
-                    currentErosion = possibleErosion;
-                }
-            }
-            if ((surfaceArray[jRand][iRand].getSediment() == 0) && (currentErosion != possibleErosion)) {
-                erosionPower = ((heightDiff / gradiantSigma) - currentErosion) / (SharedParameters.BARWIDTH * SharedParameters.BARWIDTH);
-                //calculate erosion of bar based on basic erosion (uniform or random)
-                if (SharedParameters.XPOINT < 0 && SharedParameters.YPOINT < 0) {
-                    possibleErosion = basicErosion * erosionPower;
-                }
-                //check y break point
-                if (SharedParameters.YPOINT > -1 && SharedParameters.YPOINT <= SharedParameters.ROWS && jRand > SharedParameters.YPOINT) {
-                    possibleErosion = randYTop * erosionPower;
-                }
-                if (SharedParameters.YPOINT > -1 && SharedParameters.YPOINT <= SharedParameters.ROWS && jRand <= SharedParameters.YPOINT) {
-                    possibleErosion = randYBottom * erosionPower;
-                }
-                //check x break point
-                if (SharedParameters.XPOINT > -1 && SharedParameters.XPOINT <= SharedParameters.COLUMNS && iRand > SharedParameters.XPOINT) {
-                    possibleErosion = randXRight * erosionPower;
-                }
-                if (SharedParameters.XPOINT > -1 && SharedParameters.XPOINT <= SharedParameters.COLUMNS && iRand <= SharedParameters.XPOINT) {
-                    possibleErosion = randXLeft * erosionPower;
-                }
-                currentErosion = currentErosion + possibleErosion;
-            }
-            //only for front row
-            surfaceArray[jRand][iRand].setErosion(currentErosion - sedimentTaken);
-            if (myX == 0) {
-                currentErosion = currentErosion * 0.10;
-            }
-            surfaceArray[myX][myY].setSediment(currentErosion);
-            surfaceArray[jRand][iRand].setfinalHeight();
-            surfaceArray[myX][myY].setfinalHeight();
-        }
-    }//end of applyErosion
 
     /**
      * ********************************************************************************************
      * apply the erosion according to erodibility parameters
      * *********************************************************************************************
      */
-    void reverseCalculateErosion() {
+    void calculateErosion() {
         //to do certain number of iterations
         if (keepGoing) {
+            int randx2 = jRand;
+            int randy2 = iRand;
             //get the heights of both bars and calculate height difference
             double heightDiff;
-            SharedParameters.HEIGHTDIFFERENCE = heightDiff = surfaceArray[jRand][iRand].getsurfacefinalHeight() - surfaceArray[newX][newY].getsurfacefinalHeight();
+            SharedParameters.HEIGHTDIFFERENCE = heightDiff = surfaceArray[randx2][randy2].getsurfacefinalHeight() - surfaceArray[newX][newY].getsurfacefinalHeight();
             double erosionPower;
             double possibleErosion = 1;
             double currentErosion = 0;
             double sedimentTaken = 0;
-            if (surfaceArray[jRand][iRand].getSediment() > 0) {
+            if (surfaceArray[randx2][randy2].getSediment() > 0) {
                 erosionPower = heightDiff / (SharedParameters.BARWIDTH * SharedParameters.BARWIDTH);
                 //calculate erosion of bar based on basic erosion (uniform or random)
                 if (SharedParameters.XPOINT < 0 && SharedParameters.YPOINT < 0) {
                     possibleErosion = (basicErosion * 2) * erosionPower;
                 }
                 //check y break point
-                if (SharedParameters.YPOINT > -1 && SharedParameters.YPOINT <= SharedParameters.ROWS && jRand > SharedParameters.YPOINT) {
+                if (SharedParameters.YPOINT > -1 && SharedParameters.YPOINT <= SharedParameters.ROWS && randx2 > SharedParameters.YPOINT) {
                     possibleErosion = (randYTop * 2) * erosionPower;
                 }
-                if (SharedParameters.YPOINT > -1 && SharedParameters.YPOINT <= SharedParameters.ROWS && jRand <= SharedParameters.YPOINT) {
+                if (SharedParameters.YPOINT > -1 && SharedParameters.YPOINT <= SharedParameters.ROWS && randx2 <= SharedParameters.YPOINT) {
                     possibleErosion = (randYBottom * 2) * erosionPower;
                 }
                 //check x break point
-                if (SharedParameters.XPOINT > -1 && SharedParameters.XPOINT <= SharedParameters.COLUMNS && iRand > SharedParameters.XPOINT) {
+                if (SharedParameters.XPOINT > -1 && SharedParameters.XPOINT <= SharedParameters.COLUMNS && randy2 > SharedParameters.XPOINT) {
                     possibleErosion = (randXRight * 2) * erosionPower;
                 }
-                if (SharedParameters.XPOINT > -1 && SharedParameters.XPOINT <= SharedParameters.COLUMNS && iRand <= SharedParameters.XPOINT) {
+                if (SharedParameters.XPOINT > -1 && SharedParameters.XPOINT <= SharedParameters.COLUMNS && randy2 <= SharedParameters.XPOINT) {
                     possibleErosion = (randXLeft * 2) * erosionPower;
                 }
-
-                if (possibleErosion > surfaceArray[jRand][iRand].getSediment()) {
-                    currentErosion = surfaceArray[jRand][iRand].getSediment();
+                if (possibleErosion > surfaceArray[randx2][randy2].getSediment()) {
+                    currentErosion = surfaceArray[randx2][randy2].getSediment();
                     possibleErosion -= currentErosion;
-                    sedimentTaken = surfaceArray[jRand][iRand].getSediment();
-                    surfaceArray[jRand][iRand].setSediment(+sedimentTaken);
+                    sedimentTaken = surfaceArray[randx2][randy2].getSediment();
+                    surfaceArray[randx2][randy2].setSediment(-sedimentTaken);
                 } else {
                     currentErosion = possibleErosion;
                 }
             }
-            if ((surfaceArray[jRand][iRand].getSediment() == 0) && (currentErosion != possibleErosion)) {
+            if ((surfaceArray[randx2][randy2].getSediment() == 0) && (currentErosion != possibleErosion)) {
                 erosionPower = (heightDiff - currentErosion) / (SharedParameters.BARWIDTH * SharedParameters.BARWIDTH);
                 //calculate erosion of bar based on basic erosion (uniform or random)
                 if (SharedParameters.XPOINT < 0 && SharedParameters.YPOINT < 0) {
                     possibleErosion = basicErosion * erosionPower;
                 }
                 //check y break point
-                if (SharedParameters.YPOINT > -1 && SharedParameters.YPOINT <= SharedParameters.ROWS && jRand > SharedParameters.YPOINT) {
+                if (SharedParameters.YPOINT > -1 && SharedParameters.YPOINT <= SharedParameters.ROWS && randx2 > SharedParameters.YPOINT) {
                     possibleErosion = randYTop * erosionPower;
                 }
-                if (SharedParameters.YPOINT > -1 && SharedParameters.YPOINT <= SharedParameters.ROWS && jRand <= SharedParameters.YPOINT) {
+                if (SharedParameters.YPOINT > -1 && SharedParameters.YPOINT <= SharedParameters.ROWS && randx2 <= SharedParameters.YPOINT) {
                     possibleErosion = randYBottom * erosionPower;
                 }
                 //check x break point
-                if (SharedParameters.XPOINT > -1 && SharedParameters.XPOINT <= SharedParameters.COLUMNS && iRand > SharedParameters.XPOINT) {
+                if (SharedParameters.XPOINT > -1 && SharedParameters.XPOINT <= SharedParameters.COLUMNS && randy2 > SharedParameters.XPOINT) {
                     possibleErosion = randXRight * erosionPower;
                 }
-                if (SharedParameters.XPOINT > -1 && SharedParameters.XPOINT <= SharedParameters.COLUMNS && iRand <= SharedParameters.XPOINT) {
+                if (SharedParameters.XPOINT > -1 && SharedParameters.XPOINT <= SharedParameters.COLUMNS && randy2 <= SharedParameters.XPOINT) {
                     possibleErosion = randXLeft * erosionPower;
                 }
                 currentErosion = currentErosion + possibleErosion;
             }
             //only for front row
-            surfaceArray[jRand][iRand].setErosion(currentErosion + sedimentTaken);
+            surfaceArray[randx2][randy2].setErosion(currentErosion - sedimentTaken);
             if (newX == 0) {
                 currentErosion = currentErosion * 0.10;
             }
             surfaceArray[newX][newY].setSediment(currentErosion);
-            surfaceArray[jRand][iRand].reverseSetFinalHeight();
-            surfaceArray[newX][newY].reverseSetFinalHeight();
+            surfaceArray[randx2][randy2].setfinalHeight();
+            surfaceArray[newX][newY].setfinalHeight();
         }
     }//end of applyErosion
 
+
+    void calculateErosion(int x, int y, double dist) {
+        //to do certain number of iterations
+        //if (keepGoing) {
+            int randx2 = jRand;
+            int randy2 = iRand;
+            //get the heights of both bars and calculate height difference
+            double heightDiff;
+            SharedParameters.HEIGHTDIFFERENCE = heightDiff = surfaceArray[randx2][randy2].getsurfacefinalHeight()
+                    - surfaceArray[x][y].getsurfacefinalHeight();
+            double erosionPower;
+            double possibleErosion = 1 / gradiantSigma;
+            double currentErosion = 0;
+            double sedimentTaken = 0;
+            if (surfaceArray[randx2][randy2].getSediment() > 0) {
+                erosionPower = heightDiff / dist;
+                //calculate erosion of bar based on basic erosion (uniform or random)
+                if (SharedParameters.XPOINT < 0 && SharedParameters.YPOINT < 0) {
+                    possibleErosion = (basicErosion * 2) * erosionPower;
+                }
+                //check y break point
+                if (SharedParameters.YPOINT > -1 && SharedParameters.YPOINT <= SharedParameters.ROWS && randx2 > SharedParameters.YPOINT) {
+                    possibleErosion = (randYTop * 2) * erosionPower;
+                }
+                if (SharedParameters.YPOINT > -1 && SharedParameters.YPOINT <= SharedParameters.ROWS && randx2 <= SharedParameters.YPOINT) {
+                    possibleErosion = (randYBottom * 2) * erosionPower;
+                }
+                //check x break point
+                if (SharedParameters.XPOINT > -1 && SharedParameters.XPOINT <= SharedParameters.COLUMNS && randy2 > SharedParameters.XPOINT) {
+                    possibleErosion = (randXRight * 2) * erosionPower;
+                }
+                if (SharedParameters.XPOINT > -1 && SharedParameters.XPOINT <= SharedParameters.COLUMNS && randy2 <= SharedParameters.XPOINT) {
+                    possibleErosion = (randXLeft * 2) * erosionPower;
+                }
+                if (possibleErosion > surfaceArray[randx2][randy2].getSediment()) {
+                    currentErosion = surfaceArray[randx2][randy2].getSediment();
+                    possibleErosion -= currentErosion;
+                    sedimentTaken = surfaceArray[randx2][randy2].getSediment();
+                    surfaceArray[randx2][randy2].setSediment(-sedimentTaken);
+                } else {
+                    currentErosion = possibleErosion;
+                }
+            }
+            if ((surfaceArray[randx2][randy2].getSediment() == 0) && (currentErosion != possibleErosion)) {
+                erosionPower = (heightDiff - currentErosion) / dist;
+                //calculate erosion of bar based on basic erosion (uniform or random)
+                if (SharedParameters.XPOINT < 0 && SharedParameters.YPOINT < 0) {
+                    possibleErosion = basicErosion * erosionPower;
+                }
+                //check y break point
+                if (SharedParameters.YPOINT > -1 && SharedParameters.YPOINT <= SharedParameters.ROWS && randx2 > SharedParameters.YPOINT) {
+                    possibleErosion = randYTop * erosionPower;
+                }
+                if (SharedParameters.YPOINT > -1 && SharedParameters.YPOINT <= SharedParameters.ROWS && randx2 <= SharedParameters.YPOINT) {
+                    possibleErosion = randYBottom * erosionPower;
+                }
+                //check x break point
+                if (SharedParameters.XPOINT > -1 && SharedParameters.XPOINT <= SharedParameters.COLUMNS && randy2 > SharedParameters.XPOINT) {
+                    possibleErosion = randXRight * erosionPower;
+                }
+                if (SharedParameters.XPOINT > -1 && SharedParameters.XPOINT <= SharedParameters.COLUMNS && randy2 <= SharedParameters.XPOINT) {
+                    possibleErosion = randXLeft * erosionPower;
+                }
+                currentErosion = currentErosion + possibleErosion;
+            }
+            //only for front row
+            surfaceArray[randx2][randy2].setErosion(currentErosion - sedimentTaken);
+            if (x == 0) {
+                currentErosion = currentErosion * 0.10;
+            }
+            surfaceArray[x][y].setSediment(currentErosion);
+            surfaceArray[randx2][randy2].setfinalHeight();
+            surfaceArray[x][y].setfinalHeight();
+      //  }
+    }//end of applyErosion
+    /**
+     * ********************************************************************************************
+     * apply the erosion according to erodibility parameters
+     * *********************************************************************************************
+     */
     /**
      * ********************************************************************************************
      * to reset interval arrays
