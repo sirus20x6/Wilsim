@@ -72,7 +72,8 @@ class SharedParameters {
         ROWS = 100;
         OLDROWS = 100;
         BARWIDTH = 1;
-        ENDTIME = 10000;
+        //ENDTIME = 10000;
+        ENDTIME = 10000000;
         OLDSLOPE = SLOPE = 0.01;
         EROSION = 0.05;
         RANDEROSION = false;
